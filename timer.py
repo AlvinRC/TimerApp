@@ -72,10 +72,10 @@ while not valid:
 #Timer Loop
 active = True
 while active:
-    print("Timer Started")
+    print("Timer Started, press ctrl and c at the same time to exit")
     alarm_time = time() + 3600*hours + 60*mins + secs
     while time() < alarm_time:
-        #Local Time
+        #IMPLEMENT A STOP TIMER HERE
         pass
     print("ALARM!!! It has been "+result)
     
