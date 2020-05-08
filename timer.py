@@ -9,7 +9,8 @@ import threading
 def alarm_sound():
     global curr_active
     while curr_active:
-        winsound.Beep(freq, duration)
+        winsound.PlaySound('beep_sound.wav', winsound.SND_FILENAME)        
+        # winsound.Beep(freq, duration)
 
 #this timer loop might be delayed
 def input_thread():
