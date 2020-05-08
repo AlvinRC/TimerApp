@@ -7,6 +7,7 @@ Progress:
 - Added easy exit timer
 - Made it fully functional on PC in the terminal
 - Started on GUI
+
 Current plans:
 - add nice GUI (desktop)
 - remove lag and delays
