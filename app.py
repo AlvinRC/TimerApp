@@ -12,10 +12,15 @@ import winsound
 #--- ROOT ---
 #create root of app
 root = tk.Tk()
+
+#--- Default vars --- 
 apps = []
 run = True; s=0; m=0; h=0
 textId=-1
 currActive = True
+
+#--- Default sound file ---
+soundFile = 'shortBeepSound.wav'
 
 if os.path.isfile('save.txt'):
     with open("save.txt",'r') as f:
@@ -31,14 +36,21 @@ def alarmSound():
     freq = 520  # Hz
     #2500 really piercing sound
     global currActive
+    global soundFile
+    currActive = True
     while currActive:
         print(currActive)
-        winsound.PlaySound('beep_sound.wav', winsound.SND_FILENAME)        
+        winsound.PlaySound(soundFile, winsound.SND_FILENAME)        
         # winsound.Beep(freq, duration)
+    currActive = False
 
 def setActive():
     global currActive
     currActive = False
+
+def setSoundFile(soundInput):
+    global soundFile
+    soundFile = soundInput.get()
 
 def addApp():
     global apps
@@ -129,6 +141,10 @@ def displayTimer(timerInputList):
         #play sound
         alarmThread = threading.Thread(target=alarmSound)
         alarmThread.start()
+        #reset timer vars now
+        h = 0
+        m = 0
+        s = 0
         # alarmThread.join()
 
 #--- CANVAS ---
@@ -146,26 +162,41 @@ frame1.place(relwidth=0.49,relheight=0.8, relx=0.0, rely=0.05)
 #right
 frame2 = tk.Frame(root,bg="white")
 frame2.place(relwidth=0.49,relheight=0.8, relx=0.51, rely=0.05)
+frame2frame1 = tk.Frame(frame2,bg="white")
+frame2frame1.pack()
+frame2frame2 = tk.Frame(frame2,bg="white")
+frame2frame2.pack()
 
 #--- RIGHT FRAME TIMER INPUT ---
-timerInput = tk.Entry(root,bg="grey")
-timerInput.place( relx=0.51, rely=0.05)
+label = tk.Label(frame2frame1,text="Enter Timer Interval")
+label.pack(side='left')
+timerInput = tk.Entry(frame2frame1,bg="grey")
+timerInput.pack(side='left')
+# timerInput.place( relx=0.51, rely=0.05)
 # canvas.create_window(200,140,window=w)
+label = tk.Label(frame2frame2,text="Enter Sound File Name: e.g beep.wav")
+label.pack(side='left')
+soundInput = tk.Entry(frame2frame2,bg="grey")
+timerInput.pack(side='left')
+# soundInput.place( relx=0.51, rely=0.10)
 print(timerInput.get())
 
 #--- BUTTONS ---
-startTimer = tk.Button(root, text="Start Timer", padx=10,
-                    pady=5,fg="white",bg="#263D42", command=lambda: runTimer(timerInput))
-startTimer.pack()
 stopTimer = tk.Button(root, text="Stop Timer", padx=10,
                     pady=5,fg="white",bg="#263D42", command=setActive)
 stopTimer.pack(side='right')
+startTimer = tk.Button(root, text="Start Timer", padx=10,
+                    pady=5,fg="white",bg="#263D42", command=lambda: runTimer(timerInput))
+startTimer.pack(side='right')
+setSoundButton = tk.Button(root, text="Set Alarm Sound", padx=10,
+                    pady=5,fg="white",bg="#263D42", command=lambda: setSoundFile(soundInput))
+setSoundButton.pack(side='right')
 openFile = tk.Button(root, text="Open File", padx=10,
                     pady=5,fg="white",bg="#263D42", command=addApp)
-openFile.pack(side='right',expand=True)
+openFile.pack(side='left')
 runApps = tk.Button(root, text="Run Apps", padx=10,
                     pady=5,fg="white",bg="#263D42", command=runApps)
-runApps.pack(side='left',expand=True)
+runApps.pack(side='left')
 
 #when app starts up for first time
 for app in apps:

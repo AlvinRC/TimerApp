@@ -9,8 +9,10 @@ Progress:
 - Made it fully functional on PC in the terminal
 - Started on GUI
 - Added feature (run multiple programs at once when button is pressed + store this config for future use)
+- Added feature (start timer, stop timer, set timer sound)
 
 Current plans:
+- Fix GUI placements
 - add nice GUI (desktop)
 - remove lag and delays
 - make it fully functional from GUI
