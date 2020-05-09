@@ -138,3 +138,5 @@ def timerApp():
     intervalLoop()
     #Timer Loop
     timerLoop()
+
+timerApp()
