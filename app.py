@@ -110,7 +110,7 @@ def runTimer(timerInput):
             canvas.delete(textId)
         # Add new text
         textId = canvas.create_text(
-            [10, 20], anchor='w', text="Timer: Invalid Format", font=("Consolas", 20), fill="white"
+            [10, 20], anchor='w', text="Timer: Invalid Format", font=("Consolas", 20), fill="#99aab5"
             )
     #doesnt reach this (TODO)
     # threading2.join()
@@ -122,7 +122,7 @@ def displayTimer(timerInputList):
     
     # Add new text
     textId = canvas.create_text(
-        [10, 20], anchor='w', text="Timer: %s:%s:%s" % (h, m, s), font=("Consolas", 20), fill="white"
+        [10, 20], anchor='w', text="Timer: %s:%s:%s" % (h, m, s), font=("Consolas", 20), fill="#99aab5"
         )
 
     s+=1
@@ -163,22 +163,22 @@ def displayTimer(timerInputList):
 
 #--- CANVAS ---
 #create and attach canvas to root, set height,width and background colour
-canvas = tk.Canvas(root,height=700,width=700,bg="#263D42")
+canvas = tk.Canvas(root,height=700,width=700,bg="#7289da")
 #Load canvas
 canvas.pack()
 
 #--- FRAME ---
 #left
 #create and attach frame to root, set bg to white
-frame1 = tk.Frame(root,bg="white")
+frame1 = tk.Frame(root,bg="#99aab5")
 #make frame take up 0.8 of roots heigh and width and be centered with a 10% border
 frame1.place(relwidth=0.49,relheight=0.8, relx=0.0, rely=0.05)
 #right
-frame2 = tk.Frame(root,bg="white")
+frame2 = tk.Frame(root,bg="#99aab5")
 frame2.place(relwidth=0.49,relheight=0.8, relx=0.51, rely=0.05)
-frame2frame1 = tk.Frame(frame2,bg="white")
+frame2frame1 = tk.Frame(frame2,bg="#99aab5")
 frame2frame1.pack()
-frame2frame2 = tk.Frame(frame2,bg="white")
+frame2frame2 = tk.Frame(frame2,bg="#99aab5")
 frame2frame2.pack()
 
 #--- RIGHT FRAME TIMER INPUT ---
@@ -197,19 +197,19 @@ print(timerInput.get())
 
 #--- BUTTONS ---
 stopTimer = tk.Button(root, text="Stop Timer", padx=10,
-                    pady=5,fg="white",bg="#263D42", command=setActive)
+                    pady=5,fg="white",bg="#7289da", command=setActive)
 stopTimer.pack(side='right')
 startTimer = tk.Button(root, text="Start Timer", padx=10,
-                    pady=5,fg="white",bg="#263D42", command=lambda: runTimer(timerInput))
+                    pady=5,fg="white",bg="#7289da", command=lambda: runTimer(timerInput))
 startTimer.pack(side='right')
 setSoundButton = tk.Button(root, text="Set Alarm Sound", padx=10,
-                    pady=5,fg="white",bg="#263D42", command=lambda: setSoundFile(soundInput))
+                    pady=5,fg="white",bg="#7289da", command=lambda: setSoundFile(soundInput))
 setSoundButton.pack(side='right')
 openFile = tk.Button(root, text="Open File", padx=10,
-                    pady=5,fg="white",bg="#263D42", command=addApp)
+                    pady=5,fg="white",bg="#7289da", command=addApp)
 openFile.pack(side='left')
 runApps = tk.Button(root, text="Run Apps", padx=10,
-                    pady=5,fg="white",bg="#263D42", command=runApps)
+                    pady=5,fg="white",bg="#7289da", command=runApps)
 runApps.pack(side='left')
 
 #when app starts up for first time

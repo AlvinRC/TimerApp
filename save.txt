@@ -1,1 +1,1 @@
-C:/Program Files (x86)/Google/Chrome/Application/chrome.exe,C:/Program Files (x86)/Steam/steam.exe,
+C:/Program Files (x86)/Google/Chrome/Application/chrome.exe,C:/Program Files (x86)/Steam/steam.exe,C:/Program Files (x86)/Windows Media Player/wmplayer.exe,
