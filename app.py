@@ -18,6 +18,7 @@ apps = []
 run = True; s=0; m=0; h=0
 textId=-1
 currActive = True
+finished = False
 
 #--- Default sound file ---
 soundFile = 'shortBeepSound.wav'
@@ -39,7 +40,7 @@ def alarmSound():
     global soundFile
     currActive = True
     while currActive:
-        print(currActive)
+        print(currActive,soundFile)
         winsound.PlaySound(soundFile, winsound.SND_FILENAME)        
         # winsound.Beep(freq, duration)
     currActive = False
@@ -75,7 +76,7 @@ def runApps():
         os.startfile(app)
 
 def runTimer(timerInput):
-    global textId
+    global textId,currActive
     #maybe store time from here and pass in?
     #need to run threads for this (THEY DONT WORK?)
     # threading2 = threading.Thread(target=timerApp.startTimer(timerInput))
@@ -101,6 +102,8 @@ def runTimer(timerInput):
                     print("Incorrect Format: "+''.join(data))
         timerInputList = [hours,mins,secs]
         #runs indefinitely
+        currActive = True
+        finished = False
         displayTimer(timerInputList)
     else:
         if (textId != -1):
@@ -112,11 +115,10 @@ def runTimer(timerInput):
     #doesnt reach this (TODO)
     # threading2.join()
 def displayTimer(timerInputList):
-    global run, s, m, h,textId
+    global run, s, m, h,textId,currActive,finished
     
     if (textId != -1):
         canvas.delete(textId)
-
     
     # Add new text
     textId = canvas.create_text(
@@ -131,21 +133,33 @@ def displayTimer(timerInputList):
     
     #check that new time isnt > time limit
     
-    if (h <= timerInputList[0] and m <= timerInputList[1] and s <= timerInputList[2]):
-        # After 1 second, call Run again (start an infinite recursive loop)
-        root.after(1000, displayTimer, timerInputList)
-    else:
-        print(h,m,s,timerInputList)
-        #display timer finished
-        currActive = True
-        #play sound
-        alarmThread = threading.Thread(target=alarmSound)
-        alarmThread.start()
+    if (not currActive):
         #reset timer vars now
         h = 0
         m = 0
         s = 0
-        # alarmThread.join()
+        finished = False
+        return
+    if (not (h == timerInputList[0] and m == timerInputList[1] and s == timerInputList[2]) and not finished):
+        # After 1 second, call Run again (start an infinite recursive loop)
+        root.after(1000, displayTimer, timerInputList)
+    else:
+        if(h == timerInputList[0] and m == timerInputList[1] and s == timerInputList[2]):
+            finished = True
+            root.after(1000, displayTimer, timerInputList)
+        else:
+            print(h,m,s,timerInputList)
+            #display timer finished
+            currActive = True
+            #play sound
+            alarmThread = threading.Thread(target=alarmSound)
+            alarmThread.start()
+            #reset timer vars now
+            h = 0
+            m = 0
+            s = 0
+            finished = False
+            # alarmThread.join()
 
 #--- CANVAS ---
 #create and attach canvas to root, set height,width and background colour
@@ -206,7 +220,7 @@ for app in apps:
 
 #run root
 root.mainloop()
-
+currActive = False
 #save and write to txt file
 with open('save.txt','w') as f:
     #remove dupes
