@@ -127,9 +127,9 @@ def displayTimer(timerInputList):
 
     s+=1
     if s == 59:
-        m+=1; s=-1
+        m+=1; s=0
     elif m == 59:
-        h+=1; m=-1
+        h+=1; m=0
     
     #check that new time isnt > time limit
     
