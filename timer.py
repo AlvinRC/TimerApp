@@ -5,6 +5,15 @@ import winsound
 import threading
 
 #FUNCTIONS
+currActive = False
+currResult = ""
+finished = False
+alarmTime = 0.0
+hours = 0
+mins = 0
+secs = 0 
+restart = False
+result = ""
 
 def alarmSound():
     #Beep Defs
@@ -12,8 +21,9 @@ def alarmSound():
     freq = 520  # Hz
     #2500 really piercing sound
     global currActive
+    currActive = True
     while currActive:
-        winsound.PlaySound('beepSound.wav', winsound.SND_FILENAME)        
+        winsound.PlaySound('shortBeepSound.wav', winsound.SND_FILENAME)        
         # winsound.Beep(freq, duration)
 
 #this timer loop might be delayed
@@ -22,6 +32,7 @@ def inputThread():
     global currResult
     global currActive
     # print(currActive)
+    currActive = True
     while currActive:
         currResult = input()
         sleep(1)
@@ -31,6 +42,7 @@ def inputThread():
 
 def inputOptions():
     global currActive
+    
     while currActive:
         if(currResult == "exit"):
             currActive = False
@@ -56,6 +68,7 @@ def inputWaitingOptions():
             break
 
 def intervalLoop():
+    global hours,mins,secs, result
     valid = False
     hours = 0
     mins = 0
@@ -93,14 +106,15 @@ def intervalLoop():
                     print(hours,mins,secs)
 
                     valid = True
-            print(data)
-            print(hours,mins,secs)
+            # print(data)
+            # print(hours,mins,secs)
 
 def timerLoop():
+    global result,hours,mins,secs,alarmTime,currActive
     active = True
     currActive = True
     while active:
-        print("Timer Started, type exit or press ctrl and c at the same time to exit")
+        print("Timer Started, type exit to exit")
         finished = False
         restart = False
         currResult = ""

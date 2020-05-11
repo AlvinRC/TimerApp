@@ -1,6 +1,17 @@
 This will be an application which will play an alarm sound when the interval is reached
 (Maybe have some additional functionality? like as a desktop widget?)
 
+Requirements: 
+- Python3 installed
+
+Usage:
+- For terminal timer:
+    - click timer.py in file explorer
+    - or navigate to /Timer directory in terminal and type : python timer.py 
+- For desktop GUI timer:
+    - click app.py in file explorer
+
+
 Progress:
 - Displays console message when alarm time is reached
 - Added stop alarm functionality
