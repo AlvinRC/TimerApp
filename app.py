@@ -184,29 +184,38 @@ leftFrame.grid(row=0,sticky='nsew')
 # leftFrame.place(relwidth=0.49,relheight=0.8, relx=0.0, rely=0.05)
 #separator
 separator = tk.Frame(mainFrame,bg="black")
-separator.grid(row=0,column=1,sticky='ns')
+separator.grid(row=0,column=1,sticky='nsew')
 
 #right
 rightFrame = tk.Frame(mainFrame,bg="white")
-rightFrame.grid(row=0,column=2,sticky='nsew')
+rightFrame.grid(row=0,column=2,sticky='nse')
 # rightFrame.place(relwidth=0.49,relheight=0.8, relx=0.51, rely=0.05)
 
 #right frames
 rightFrame1 = tk.Frame(rightFrame,bg="#99aab5")
-rightFrame1.pack()
+rightFrame1.grid(row=0)
+rightFrame1right = tk.Frame(rightFrame,bg="#99aab5")
+rightFrame1right.grid(row=0,column=1)
 rightFrame2 = tk.Frame(rightFrame,bg="#99aab5")
-rightFrame2.pack()
+rightFrame2.grid(row=1)
+rightFrame2right = tk.Frame(rightFrame,bg="#99aab5")
+rightFrame2right.grid(row=1,column=1)
 
 #--- INPUT GRID
 label1 = tk.Label(rightFrame1,text="Enter Timer Interval")
-timerInput = tk.Entry(rightFrame1,bg="grey")
+timerInput = tk.Entry(rightFrame1right,bg="grey")
 label2 = tk.Label(rightFrame2,text="Enter Sound File Name: e.g beep.wav")
-soundInput = tk.Entry(rightFrame2,bg="grey")
+soundInput = tk.Entry(rightFrame2right,bg="grey")
 
-label1.grid(row=0)
-label2.grid(row=1)
-timerInput.grid(row=0,column=1)
-soundInput.grid(row=1,column=1)
+#TODO: FIX ANCHORING
+label1.pack(anchor='w')
+timerInput.pack(anchor='e')
+label2.pack(anchor='w')
+soundInput.pack(anchor='e')
+# label1.grid(row=0,column=0,sticky='w')
+# timerInput.grid(row=0,column=2,sticky='e')
+# label2.grid(row=1,column=0,sticky='w')
+# soundInput.grid(row=1,column=1,sticky='e')
 # label1.pack(side='left')
 # timerInput.pack(side='left')
 # label2.pack(side='left')
