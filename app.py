@@ -56,7 +56,7 @@ def setSoundFile(soundInput):
 def addApp():
     global apps
     #remove everything in frame first
-    for widget in frame1.winfo_children():
+    for widget in leftFrame.winfo_children():
         widget.destroy()
 
     filename= filedialog.askopenfilename(initialdir="/",title="Select File",
@@ -68,7 +68,7 @@ def addApp():
 
     for app in apps:
         #create and attach label to frame
-        label = tk.Label(frame1,text=app, bg="gray")
+        label = tk.Label(leftFrame,text=app, bg="gray")
         label.pack()
 
 def runApps():
@@ -167,54 +167,79 @@ canvas = tk.Canvas(root,height=700,width=700,bg="#7289da")
 #Load canvas
 canvas.pack()
 
-#--- FRAME ---
+#--- FRAMES ---
+#base frames
+# headerFrame = tk.Frame(canvas)
+# headerFrame.place(relwidth=1,relheight=0.1)
+mainFrame = tk.Frame(canvas,bg="#99aab5")
+mainFrame.place(relwidth=1,relheight=0.85,rely=0.1)
+footerFrame = tk.Frame(canvas,bg="#7289da")
+footerFrame.place(relwidth=1,relheight=0.05,rely=0.95)
+
 #left
 #create and attach frame to root, set bg to white
-frame1 = tk.Frame(root,bg="#99aab5")
 #make frame take up 0.8 of roots heigh and width and be centered with a 10% border
-frame1.place(relwidth=0.49,relheight=0.8, relx=0.0, rely=0.05)
-#right
-frame2 = tk.Frame(root,bg="#99aab5")
-frame2.place(relwidth=0.49,relheight=0.8, relx=0.51, rely=0.05)
-frame2frame1 = tk.Frame(frame2,bg="#99aab5")
-frame2frame1.pack()
-frame2frame2 = tk.Frame(frame2,bg="#99aab5")
-frame2frame2.pack()
+leftFrame = tk.Frame(mainFrame,bg="white")
+leftFrame.grid(row=0,sticky='nsew')
+# leftFrame.place(relwidth=0.49,relheight=0.8, relx=0.0, rely=0.05)
+#separator
+separator = tk.Frame(mainFrame,bg="black")
+separator.grid(row=0,column=1,sticky='ns')
 
-#--- RIGHT FRAME TIMER INPUT ---
-label = tk.Label(frame2frame1,text="Enter Timer Interval")
-label.pack(side='left')
-timerInput = tk.Entry(frame2frame1,bg="grey")
-timerInput.pack(side='left')
-# timerInput.place( relx=0.51, rely=0.05)
-# canvas.create_window(200,140,window=w)
-label = tk.Label(frame2frame2,text="Enter Sound File Name: e.g beep.wav")
-label.pack(side='left')
-soundInput = tk.Entry(frame2frame2,bg="grey")
-timerInput.pack(side='left')
+#right
+rightFrame = tk.Frame(mainFrame,bg="white")
+rightFrame.grid(row=0,column=2,sticky='nsew')
+# rightFrame.place(relwidth=0.49,relheight=0.8, relx=0.51, rely=0.05)
+
+#right frames
+rightFrame1 = tk.Frame(rightFrame,bg="#99aab5")
+rightFrame1.pack()
+rightFrame2 = tk.Frame(rightFrame,bg="#99aab5")
+rightFrame2.pack()
+
+#--- INPUT GRID
+label1 = tk.Label(rightFrame1,text="Enter Timer Interval")
+timerInput = tk.Entry(rightFrame1,bg="grey")
+label2 = tk.Label(rightFrame2,text="Enter Sound File Name: e.g beep.wav")
+soundInput = tk.Entry(rightFrame2,bg="grey")
+
+label1.grid(row=0)
+label2.grid(row=1)
+timerInput.grid(row=0,column=1)
+soundInput.grid(row=1,column=1)
+# label1.pack(side='left')
+# timerInput.pack(side='left')
+# label2.pack(side='left')
+# soundInput.pack(side='left')
+
 # soundInput.place( relx=0.51, rely=0.10)
 print(timerInput.get())
 
+
+
+
+
+
 #--- BUTTONS ---
-stopTimer = tk.Button(root, text="Stop Timer", padx=10,
+stopTimer = tk.Button(footerFrame, text="Stop Timer", padx=10,
                     pady=5,fg="white",bg="#7289da", command=setActive)
-stopTimer.pack(side='right')
-startTimer = tk.Button(root, text="Start Timer", padx=10,
+stopTimer.pack(side='right',anchor='s')
+startTimer = tk.Button(footerFrame, text="Start Timer", padx=10,
                     pady=5,fg="white",bg="#7289da", command=lambda: runTimer(timerInput))
-startTimer.pack(side='right')
-setSoundButton = tk.Button(root, text="Set Alarm Sound", padx=10,
+startTimer.pack(side='right',anchor='s')
+setSoundButton = tk.Button(footerFrame, text="Set Alarm Sound", padx=10,
                     pady=5,fg="white",bg="#7289da", command=lambda: setSoundFile(soundInput))
-setSoundButton.pack(side='right')
-openFile = tk.Button(root, text="Open File", padx=10,
+setSoundButton.pack(side='right',anchor='s')
+openFile = tk.Button(footerFrame, text="Open File", padx=10,
                     pady=5,fg="white",bg="#7289da", command=addApp)
-openFile.pack(side='left')
-runApps = tk.Button(root, text="Run Apps", padx=10,
+openFile.pack(side='left',anchor='s')
+runApps = tk.Button(footerFrame, text="Run Apps", padx=10,
                     pady=5,fg="white",bg="#7289da", command=runApps)
-runApps.pack(side='left')
+runApps.pack(side='left',anchor='s')
 
 #when app starts up for first time
 for app in apps:
-    label = tk.Label(frame1,text=app)
+    label = tk.Label(leftFrame,text=app)
     label.pack()
 
 
