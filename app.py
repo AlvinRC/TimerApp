@@ -19,6 +19,9 @@ run = True; s=0; m=0; h=0
 textId=-1
 currActive = True
 finished = False
+changed = False
+defaultColour1 = '#7289da'
+defaultColour2 = "#00adef"
 
 #--- Default sound file ---
 soundFile = 'shortBeepSound.wav'
@@ -56,7 +59,7 @@ def setSoundFile(soundInput):
 def addApp():
     global apps
     #remove everything in frame first
-    for widget in leftFrame.winfo_children():
+    for widget in leftFrame1.winfo_children():
         widget.destroy()
 
     filename= filedialog.askopenfilename(initialdir="/",title="Select File",
@@ -66,21 +69,33 @@ def addApp():
     #remove dupe
     apps = list(dict.fromkeys(apps))
 
+    count = 0
     for app in apps:
         #create and attach label to frame
-        label = tk.Label(leftFrame,text=app, bg="gray")
-        label.pack()
+        label = tk.Label(leftFrame1,text=app,bg='white')
+        # label.pack(anchor='w')
+        label.grid(row=count,sticky='w')
+        count = count + 1
 
 def runApps():
     for app in apps:
         os.startfile(app)
 
+def changeColours():
+    global changed,defaultColour1,defaultColour2
+    colour = defaultColour1
+    if(not changed):
+        colour = defaultColour2
+        changed = True
+    else:
+        changed = False
+    # print(colour,changed)
+    canvas.config(background=colour)
+    footerFrame.config(background=colour)
+    for widget in footerFrame.winfo_children():
+        widget.config(background=colour)
 def runTimer(timerInput):
     global textId,currActive
-    #maybe store time from here and pass in?
-    #need to run threads for this (THEY DONT WORK?)
-    # threading2 = threading.Thread(target=timerApp.startTimer(timerInput))
-    # threading2.start()
 
     valid = timerApp.startTimer(timerInput)
     print(valid)
@@ -106,25 +121,19 @@ def runTimer(timerInput):
         finished = False
         displayTimer(timerInputList)
     else:
-        if (textId != -1):
-            canvas.delete(textId)
-        # Add new text
-        textId = canvas.create_text(
-            [10, 20], anchor='w', text="Timer: Invalid Format", font=("Consolas", 20), fill="#99aab5"
-            )
-    #doesnt reach this (TODO)
-    # threading2.join()
+        for widget in rightFrameTimer.winfo_children():
+            widget.destroy()
+        #add new text
+        timerLabel = tk.Label(rightFrameTimer,text="Timer: Invalid Format", font=("Consolas", 20),bg='white')
+        timerLabel.pack(anchor='w')
 def displayTimer(timerInputList):
     global run, s, m, h,textId,currActive,finished
     
-    if (textId != -1):
-        canvas.delete(textId)
-    
-    # Add new text
-    textId = canvas.create_text(
-        [10, 20], anchor='w', text="Timer: %s:%s:%s" % (h, m, s), font=("Consolas", 20), fill="#99aab5"
-        )
-
+    for widget in rightFrameTimer.winfo_children():
+        widget.destroy()
+    #add new text
+    timerLabel = tk.Label(rightFrameTimer,text="Timer: %s:%s:%s" % (h, m, s), font=("Consolas", 20),bg='white')
+    timerLabel.pack(anchor='w')
     s+=1
     if s == 59:
         m+=1; s=0
@@ -165,7 +174,7 @@ def displayTimer(timerInputList):
 #create and attach canvas to root, set height,width and background colour
 canvas = tk.Canvas(root,height=700,width=700,bg="#7289da")
 #Load canvas
-canvas.pack()
+canvas.pack(expand='true',fill='x') 
 
 #--- FRAMES ---
 #base frames
@@ -173,6 +182,14 @@ canvas.pack()
 # headerFrame.place(relwidth=1,relheight=0.1)
 mainFrame = tk.Frame(canvas,bg="#99aab5")
 mainFrame.place(relwidth=1,relheight=0.85,rely=0.1)
+#stretch x
+mainFrame.grid_columnconfigure(0,weight=1,uniform='groupname')
+mainFrame.grid_columnconfigure(1,weight=0)
+mainFrame.grid_columnconfigure(2,weight=2,uniform='groupname')
+#stretch y
+mainFrame.grid_rowconfigure(0,weight=1)
+
+# mainFrame.place(relwidth=0.994,relheight=0.85,rely=0.1,relx=0.003)
 footerFrame = tk.Frame(canvas,bg="#7289da")
 footerFrame.place(relwidth=1,relheight=0.05,rely=0.95)
 
@@ -180,46 +197,51 @@ footerFrame.place(relwidth=1,relheight=0.05,rely=0.95)
 #create and attach frame to root, set bg to white
 #make frame take up 0.8 of roots heigh and width and be centered with a 10% border
 leftFrame = tk.Frame(mainFrame,bg="white")
-leftFrame.grid(row=0,sticky='nsew')
-# leftFrame.place(relwidth=0.49,relheight=0.8, relx=0.0, rely=0.05)
-#separator
+leftFrame.grid(row=0,column=0,sticky='nsew')
+leftFrame.grid_columnconfigure(0,weight=1)
+
+#left frames
+leftFrame1 = tk.Frame(leftFrame,bg="white")
+leftFrame1.grid(row=0,column=0,sticky='nsew')
+leftFrame2 = tk.Frame(leftFrame,bg="black")
+leftFrame2.grid(row=1,column=0,sticky='nsew')
+# #separator
 separator = tk.Frame(mainFrame,bg="black")
-separator.grid(row=0,column=1,sticky='nsew')
+separator.grid(row=0,column=1,sticky='ns',ipadx=1)
 
 #right
 rightFrame = tk.Frame(mainFrame,bg="white")
-rightFrame.grid(row=0,column=2,sticky='nse')
+rightFrame.grid(row=0,column=2,sticky='nsew')
+#scale based of text size
+rightFrame.grid_columnconfigure(0,weight=2,uniform='group2')
+rightFrame.grid_columnconfigure(1,weight=1,uniform='group2')
+
 # rightFrame.place(relwidth=0.49,relheight=0.8, relx=0.51, rely=0.05)
 
 #right frames
 rightFrame1 = tk.Frame(rightFrame,bg="#99aab5")
-rightFrame1.grid(row=0)
+rightFrame1.grid(row=0,sticky='w')
 rightFrame1right = tk.Frame(rightFrame,bg="#99aab5")
-rightFrame1right.grid(row=0,column=1)
+rightFrame1right.grid(row=0,column=1,sticky='e')
 rightFrame2 = tk.Frame(rightFrame,bg="#99aab5")
-rightFrame2.grid(row=1)
+rightFrame2.grid(row=1,sticky='w')
 rightFrame2right = tk.Frame(rightFrame,bg="#99aab5")
-rightFrame2right.grid(row=1,column=1)
+rightFrame2right.grid(row=1,column=1,sticky='e')
 
+rightFrameTimer = tk.Frame(rightFrame,bg="#99aab5")
+rightFrameTimer.grid(row=2,columnspan=2,stick='w')
+
+rightFrame
 #--- INPUT GRID
-label1 = tk.Label(rightFrame1,text="Enter Timer Interval")
-timerInput = tk.Entry(rightFrame1right,bg="grey")
-label2 = tk.Label(rightFrame2,text="Enter Sound File Name: e.g beep.wav")
-soundInput = tk.Entry(rightFrame2right,bg="grey")
+label1 = tk.Label(rightFrame1,text="Enter Timer Interval",bg='white')
+timerInput = tk.Entry(rightFrame1right,bg="lightgray")
+label2 = tk.Label(rightFrame2,text="Enter Sound File Name: e.g beep.wav",bg='white')
+soundInput = tk.Entry(rightFrame2right,bg="lightgray")
 
-#TODO: FIX ANCHORING
 label1.pack(anchor='w')
 timerInput.pack(anchor='e')
 label2.pack(anchor='w')
 soundInput.pack(anchor='e')
-# label1.grid(row=0,column=0,sticky='w')
-# timerInput.grid(row=0,column=2,sticky='e')
-# label2.grid(row=1,column=0,sticky='w')
-# soundInput.grid(row=1,column=1,sticky='e')
-# label1.pack(side='left')
-# timerInput.pack(side='left')
-# label2.pack(side='left')
-# soundInput.pack(side='left')
 
 # soundInput.place( relx=0.51, rely=0.10)
 print(timerInput.get())
@@ -231,27 +253,34 @@ print(timerInput.get())
 
 #--- BUTTONS ---
 stopTimer = tk.Button(footerFrame, text="Stop Timer", padx=10,
-                    pady=5,fg="white",bg="#7289da", command=setActive)
+                    pady=5,fg="white",bg=defaultColour1, command=setActive)
 stopTimer.pack(side='right',anchor='s')
 startTimer = tk.Button(footerFrame, text="Start Timer", padx=10,
-                    pady=5,fg="white",bg="#7289da", command=lambda: runTimer(timerInput))
+                    pady=5,fg="white",bg=defaultColour1, command=lambda: runTimer(timerInput))
 startTimer.pack(side='right',anchor='s')
 setSoundButton = tk.Button(footerFrame, text="Set Alarm Sound", padx=10,
-                    pady=5,fg="white",bg="#7289da", command=lambda: setSoundFile(soundInput))
+                    pady=5,fg="white",bg=defaultColour1, command=lambda: setSoundFile(soundInput))
 setSoundButton.pack(side='right',anchor='s')
+
+changeColour = tk.Button(footerFrame, text="Change Colours", padx=10,
+                    pady=5,fg="white",bg=defaultColour1, command=changeColours)
+changeColour.pack(side='left',anchor='s')
+
 openFile = tk.Button(footerFrame, text="Open File", padx=10,
-                    pady=5,fg="white",bg="#7289da", command=addApp)
+                    pady=5,fg="white",bg=defaultColour1, command=addApp)
 openFile.pack(side='left',anchor='s')
 runApps = tk.Button(footerFrame, text="Run Apps", padx=10,
-                    pady=5,fg="white",bg="#7289da", command=runApps)
+                    pady=5,fg="white",bg=defaultColour1, command=runApps)
 runApps.pack(side='left',anchor='s')
 
 #when app starts up for first time
+count = 0
 for app in apps:
-    label = tk.Label(leftFrame,text=app)
-    label.pack()
-
-
+    label = tk.Label(leftFrame1,text=app,bg='white')
+    # label.pack(anchor='w')
+    label.grid(row=count,sticky='w')
+    count = count + 1
+    
 #run root
 root.mainloop()
 currActive = False
