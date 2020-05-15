@@ -7,18 +7,18 @@ import threading
 hours=0;mins=0;secs=0
 currActive = True
 
-def alarmSound():
-    #Beep Defs
-    duration = 1000  # milliseconds
-    freq = 520  # Hz
-    #2500 really piercing sound
-    global currActive
-    currActive = True
-    while currActive:
-        print(currActive)
+# def alarmSound():
+#     #Beep Defs
+#     duration = 1000  # milliseconds
+#     freq = 520  # Hz
+#     #2500 really piercing sound
+#     global currActive
+#     currActive = True
+#     while currActive:
+#         print(currActive)
 
-        winsound.PlaySound('beep_sound.wav', winsound.SND_FILENAME)        
-        # winsound.Beep(freq, duration)
+#         winsound.PlaySound('beep_sound.wav', winsound.SND_FILENAME)        
+#         # winsound.Beep(freq, duration)
 
 def setActive():
     global currActive
@@ -63,22 +63,22 @@ def intervalLoop(resultObj):
         print("invalid time inputted")
     return valid
 
-def timerLoop():
-    active = True
-    currActive = True
-    finished = False
-    restart = False
-    currActive = True
-    #Waiting Loop
-    alarmTime = time() + 3600*hours + 60*mins + secs
-    while time() < alarmTime:
-        pass
-    print("ALARM!!! It has been %f hrs %f mins %f secs" %(hours,mins,secs))
-    currActive = True
-    #start timer
-    threading2 = threading.Thread(target=alarmSound)
-    threading2.start()
-    threading2.daemon = True
+# def timerLoop():
+#     active = True
+#     currActive = True
+#     finished = False
+#     restart = False
+#     currActive = True
+#     #Waiting Loop
+#     alarmTime = time() + 3600*hours + 60*mins + secs
+#     while time() < alarmTime:
+#         pass
+#     print("ALARM!!! It has been %f hrs %f mins %f secs" %(hours,mins,secs))
+#     currActive = True
+#     #start timer
+#     threading2 = threading.Thread(target=alarmSound)
+#     threading2.start()
+#     threading2.daemon = True
 
 def startTimer(timerInput):
     hours = 0

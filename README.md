@@ -4,6 +4,8 @@ This will be an application which will play an alarm sound when the interval is 
 Requirements: 
 - Python3 installed
 
+WARNING: DEFAULT ALARM IS VERY LOUD
+
 Usage:
 - For terminal timer:
     - click timer.py in file explorer
@@ -29,7 +31,9 @@ Current plans:
 - add more spacing frames and move buttons to correct frames
 - add pause,continue timer functionality
 - add colour scheme change options (more than toggle option)
-- reduce size of run apps section
+- reduce size of run apps section (with toggle <> buttons)
+- daily timers (7 days)
+- total timer (store presets of these for each day/sesh)
 - add remove app
 - add nice GUI (desktop)
 - remove lag and delays

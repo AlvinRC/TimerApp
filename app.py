@@ -17,9 +17,11 @@ root = tk.Tk()
 apps = []
 run = True; s=0; m=0; h=0
 textId=-1
-currActive = True
+currActive = False
 finished = False
 changed = False
+ended = False
+paused = False
 defaultColour1 = '#7289da'
 defaultColour2 = "#00adef"
 
@@ -48,19 +50,14 @@ def alarmSound():
         # winsound.Beep(freq, duration)
     currActive = False
 
-def setActive():
-    global currActive
-    currActive = False
-
-def setSoundFile(soundInput):
-    global soundFile
-    soundFile = soundInput.get()
 
 def addApp():
     global apps
+    count = 0
     #remove everything in frame first
     for widget in leftFrame1.winfo_children():
         widget.destroy()
+        count = count + 1
 
     filename= filedialog.askopenfilename(initialdir="/",title="Select File",
     filetypes=(("exectuables","*.exe"),("all files", "*.*")))
@@ -69,7 +66,6 @@ def addApp():
     #remove dupe
     apps = list(dict.fromkeys(apps))
 
-    count = 0
     for app in apps:
         #create and attach label to frame
         label = tk.Label(leftFrame1,text=app,bg='white')
@@ -94,9 +90,41 @@ def changeColours():
     footerFrame.config(background=colour)
     for widget in footerFrame.winfo_children():
         widget.config(background=colour)
+    for widget in leftFrameButtons.winfo_children():
+        widget.config(background=colour)
+    for widget in rightFrameButtons.winfo_children():
+        widget.config(background=colour)
+
+def pauseTimer():
+    global paused
+    setActive()
+    paused = True
+
+def resumeTimer():
+    global paused,currActive
+    currActive = True
+    paused = False
+
+def endTimer():
+    global ended,paused
+    setActive()
+    ended = True
+    paused = False
+
+def setActive():
+    global currActive
+    currActive = False
+
+def setSoundFile(soundInput):
+    global soundFile
+    soundFile = soundInput.get()
+
 def runTimer(timerInput):
     global textId,currActive
-
+    global h,m,s,finished
+    if (currActive):
+        #already running
+        return
     valid = timerApp.startTimer(timerInput)
     print(valid)
     if(valid):
@@ -119,16 +147,39 @@ def runTimer(timerInput):
         #runs indefinitely
         currActive = True
         finished = False
+
         displayTimer(timerInputList)
+
+
     else:
         for widget in rightFrameTimer.winfo_children():
             widget.destroy()
         #add new text
         timerLabel = tk.Label(rightFrameTimer,text="Timer: Invalid Format", font=("Consolas", 20),bg='white')
         timerLabel.pack(anchor='w')
+
 def displayTimer(timerInputList):
     global run, s, m, h,textId,currActive,finished
     
+    global paused,ended
+    #check that new time isnt > time limit
+    #stop early
+    if (not currActive):
+        # print(paused,ended)
+
+        if(paused):
+            #TODO:do something to wait here until resume or stop
+            root.after(1000, displayTimer, timerInputList)
+            # pass
+        elif(ended):
+            #reset timer vars now
+            h = 0
+            m = 0
+            s = 0
+            paused = False
+            finished = False
+        return 
+
     for widget in rightFrameTimer.winfo_children():
         widget.destroy()
     #add new text
@@ -140,15 +191,7 @@ def displayTimer(timerInputList):
     elif m == 59:
         h+=1; m=0
     
-    #check that new time isnt > time limit
     
-    if (not currActive):
-        #reset timer vars now
-        h = 0
-        m = 0
-        s = 0
-        finished = False
-        return
     if (not (h == timerInputList[0] and m == timerInputList[1] and s == timerInputList[2]) and not finished):
         # After 1 second, call Run again (start an infinite recursive loop)
         root.after(1000, displayTimer, timerInputList)
@@ -158,11 +201,12 @@ def displayTimer(timerInputList):
             root.after(1000, displayTimer, timerInputList)
         else:
             print(h,m,s,timerInputList)
-            #display timer finished
+            #display timer finishedz
             currActive = True
             #play sound
             alarmThread = threading.Thread(target=alarmSound)
             alarmThread.start()
+            #exit timer
             #reset timer vars now
             h = 0
             m = 0
@@ -205,6 +249,8 @@ leftFrame1 = tk.Frame(leftFrame,bg="white")
 leftFrame1.grid(row=0,column=0,sticky='nsew')
 leftFrame2 = tk.Frame(leftFrame,bg="black")
 leftFrame2.grid(row=1,column=0,sticky='nsew')
+leftFrameButtons = tk.Frame(leftFrame,bg="white")
+leftFrameButtons.grid(row=2,column=0,sticky='nsew')
 # #separator
 separator = tk.Frame(mainFrame,bg="black")
 separator.grid(row=0,column=1,sticky='ns',ipadx=1)
@@ -231,7 +277,9 @@ rightFrame2right.grid(row=1,column=1,sticky='e')
 rightFrameTimer = tk.Frame(rightFrame,bg="#99aab5")
 rightFrameTimer.grid(row=2,columnspan=2,stick='w')
 
-rightFrame
+rightFrameButtons = tk.Frame(rightFrame,bg="#99aab5")
+rightFrameButtons.grid(row=3,columnspan=2,stick='w')
+
 #--- INPUT GRID
 label1 = tk.Label(rightFrame1,text="Enter Timer Interval",bg='white')
 timerInput = tk.Entry(rightFrame1right,bg="lightgray")
@@ -252,13 +300,19 @@ print(timerInput.get())
 
 
 #--- BUTTONS ---
-stopTimer = tk.Button(footerFrame, text="Stop Timer", padx=10,
-                    pady=5,fg="white",bg=defaultColour1, command=setActive)
+stopTimer = tk.Button(rightFrameButtons, text="Stop Timer", padx=10,
+                    pady=5,fg="white",bg=defaultColour1, command=endTimer)
 stopTimer.pack(side='right',anchor='s')
-startTimer = tk.Button(footerFrame, text="Start Timer", padx=10,
+pauseTimerButton = tk.Button(rightFrameButtons, text="Pause Timer", padx=10,
+                    pady=5,fg="white",bg=defaultColour1, command=pauseTimer)
+pauseTimerButton.pack(side='right',anchor='s')
+resumeTimerButton = tk.Button(rightFrameButtons, text="Resume Timer", padx=10,
+                    pady=5,fg="white",bg=defaultColour1, command=resumeTimer)
+resumeTimerButton.pack(side='right',anchor='s')
+startTimer = tk.Button(rightFrameButtons, text="Start Timer", padx=10,
                     pady=5,fg="white",bg=defaultColour1, command=lambda: runTimer(timerInput))
 startTimer.pack(side='right',anchor='s')
-setSoundButton = tk.Button(footerFrame, text="Set Alarm Sound", padx=10,
+setSoundButton = tk.Button(rightFrameButtons, text="Set Alarm Sound", padx=10,
                     pady=5,fg="white",bg=defaultColour1, command=lambda: setSoundFile(soundInput))
 setSoundButton.pack(side='right',anchor='s')
 
@@ -266,10 +320,10 @@ changeColour = tk.Button(footerFrame, text="Change Colours", padx=10,
                     pady=5,fg="white",bg=defaultColour1, command=changeColours)
 changeColour.pack(side='left',anchor='s')
 
-openFile = tk.Button(footerFrame, text="Open File", padx=10,
+openFile = tk.Button(leftFrameButtons, text="Open File", padx=10,
                     pady=5,fg="white",bg=defaultColour1, command=addApp)
 openFile.pack(side='left',anchor='s')
-runApps = tk.Button(footerFrame, text="Run Apps", padx=10,
+runApps = tk.Button(leftFrameButtons, text="Run Apps", padx=10,
                     pady=5,fg="white",bg=defaultColour1, command=runApps)
 runApps.pack(side='left',anchor='s')
 
