@@ -25,11 +25,11 @@ Progress:
 - Added feature (start timer, stop timer, set timer sound)
 - Fixed GUI placements
 - Toggle colour change (only two shades)
-- 
+- Added pause,continue timer functionality
+- Added more spacing frames and move buttons to correct frames
+
 
 Current plans:
-- add more spacing frames and move buttons to correct frames
-- add pause,continue timer functionality
 - add colour scheme change options (more than toggle option)
 - reduce size of run apps section (with toggle <> buttons)
 - daily timers (7 days)
