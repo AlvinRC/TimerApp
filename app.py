@@ -12,9 +12,10 @@ import winsound
 #--- ROOT ---
 #create root of app
 root = tk.Tk()
-
+root.title('Timer App')
 #--- Default vars --- 
 apps = []
+checked = []
 run = True; s=0; m=0; h=0
 textId=-1
 currActive = False
@@ -50,28 +51,68 @@ def alarmSound():
         # winsound.Beep(freq, duration)
     currActive = False
 
+def showApps():
+    print("showing")
+    pass
+def hideApps():
+    print("hiding")
+
+    pass
+
 
 def addApp():
-    global apps
+    global apps,checked
+    checked.clear()
     count = 0
+    
+    filename= filedialog.askopenfilename(initialdir="/",title="Select File",
+    filetypes=(("exectuables","*.exe"),("all files", "*.*")))
+    if(filename):
+        apps.append(filename)
+    else: 
+        #nothing selected
+        return 
+    print(filename)
+    #remove dupe
+    apps = list(dict.fromkeys(apps))
     #remove everything in frame first
     for widget in leftFrame1.winfo_children():
         widget.destroy()
         count = count + 1
-
-    filename= filedialog.askopenfilename(initialdir="/",title="Select File",
-    filetypes=(("exectuables","*.exe"),("all files", "*.*")))
-    apps.append(filename)
-    print(filename)
-    #remove dupe
-    apps = list(dict.fromkeys(apps))
-
+    count = 0
     for app in apps:
+        var = tk.BooleanVar()
         #create and attach label to frame
-        label = tk.Label(leftFrame1,text=app,bg='white')
+        checkButton = tk.Checkbutton(leftFrame1,text=app,bg='white',variable=var)
+        checked.append(var)
         # label.pack(anchor='w')
-        label.grid(row=count,sticky='w')
+        checkButton.grid(row=count,sticky='w')
         count = count + 1
+
+def deleteApp():
+    global apps,checked
+    count = 0
+    deleted = []
+    for widget in leftFrame1.winfo_children():
+        if(checked[count].get()):
+            widget.destroy()
+            deleted.append(count)
+        count = count + 1
+    reverseList = sorted(deleted,reverse=True)
+    print(reverseList)
+
+    for index in reverseList:
+        print('deleted ',apps[index])
+        del checked[index]
+        del apps[index]
+    # for item in checked:
+    #     print(item.get())
+        
+    # #remove everything in frame first
+    # for widget in leftFrame1.winfo_children():
+    #     widget.destroy()
+    #     count = count + 1
+    
 
 def runApps():
     for app in apps:
@@ -222,20 +263,24 @@ canvas.pack(expand='true',fill='x')
 
 #--- FRAMES ---
 #base frames
-# headerFrame = tk.Frame(canvas)
+headerFrame = tk.Frame(canvas)
+headerFrame.grid(row=0,sticky='ew')
+
 # headerFrame.place(relwidth=1,relheight=0.1)
 mainFrame = tk.Frame(canvas,bg="#99aab5")
-mainFrame.place(relwidth=1,relheight=0.85,rely=0.1)
+mainFrame.grid(row=1,sticky='nsew')
+# mainFrame.place(relwidth=1,relheight=0.85,rely=0.1)
 #stretch x
-mainFrame.grid_columnconfigure(0,weight=1,uniform='groupname')
-mainFrame.grid_columnconfigure(1,weight=0)
-mainFrame.grid_columnconfigure(2,weight=2,uniform='groupname')
+# mainFrame.grid_columnconfigure(0,weight=0,uniform='groupname')
+# mainFrame.grid_columnconfigure(1,weight=0)
+# mainFrame.grid_columnconfigure(2,weight=1,uniform='groupname')
 #stretch y
 mainFrame.grid_rowconfigure(0,weight=1)
 
 # mainFrame.place(relwidth=0.994,relheight=0.85,rely=0.1,relx=0.003)
 footerFrame = tk.Frame(canvas,bg="#7289da")
-footerFrame.place(relwidth=1,relheight=0.05,rely=0.95)
+footerFrame.grid(row=2,sticky='ew')
+# footerFrame.place(relwidth=1,relheight=0.05,rely=0.95)
 
 #left
 #create and attach frame to root, set bg to white
@@ -295,8 +340,11 @@ soundInput.pack(anchor='e')
 print(timerInput.get())
 
 
-
-
+#TITLE:
+label1 = tk.Label(headerFrame,text="App Runner",bg='white')
+label2 = tk.Label(headerFrame,text="Timer",bg='white')
+label1.grid(row=0)
+label2.grid(row=0,column=1)
 
 
 #--- BUTTONS ---
@@ -320,19 +368,34 @@ changeColour = tk.Button(footerFrame, text="Change Colours", padx=10,
                     pady=5,fg="white",bg=defaultColour1, command=changeColours)
 changeColour.pack(side='left',anchor='s')
 
-openFile = tk.Button(leftFrameButtons, text="Open File", padx=10,
+openFile = tk.Button(leftFrameButtons, text="Add App", padx=10,
                     pady=5,fg="white",bg=defaultColour1, command=addApp)
 openFile.pack(side='left',anchor='s')
+deleteFile = tk.Button(leftFrameButtons, text="Delete App", padx=10,
+                    pady=5,fg="white",bg=defaultColour1, command=deleteApp)
+deleteFile.pack(side='left',anchor='s')
 runApps = tk.Button(leftFrameButtons, text="Run Apps", padx=10,
                     pady=5,fg="white",bg=defaultColour1, command=runApps)
 runApps.pack(side='left',anchor='s')
 
+
+#arrow button <> goes here probably in middle frame?
+showAppsButton = tk.Button(separator, text="Show Apps", padx=10,
+                    pady=5,fg="white",bg=defaultColour1, command=showApps)
+showAppsButton.pack(side='left',expand=True,fill='both',anchor='s')
+hideAppsButton = tk.Button(separator, text="Hide Apps", padx=10,
+                    pady=5,fg="white",bg=defaultColour1, command=hideApps)
+hideAppsButton.pack(side='left',expand=True,fill='both',anchor='s')
+
+
 #when app starts up for first time
 count = 0
 for app in apps:
-    label = tk.Label(leftFrame1,text=app,bg='white')
-    # label.pack(anchor='w')
-    label.grid(row=count,sticky='w')
+    var = tk.BooleanVar()
+    #create and attach label to frame
+    checkButton = tk.Checkbutton(leftFrame1,text=app,bg='white',variable=var)
+    checked.append(var)
+    checkButton.grid(row=count,sticky='w')
     count = count + 1
     
 #run root
