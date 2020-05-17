@@ -23,6 +23,7 @@ finished = False
 changed = False
 ended = False
 paused = False
+hidden = False
 defaultColour1 = '#7289da'
 defaultColour2 = "#00adef"
 
@@ -51,12 +52,18 @@ def alarmSound():
         # winsound.Beep(freq, duration)
     currActive = False
 
-def showApps():
-    print("showing")
-    pass
-def hideApps():
-    print("hiding")
-
+def displayApps():
+    global hidden
+    if (not hidden):
+        print("hiding")
+        leftFrame.grid_forget()
+        displayAppsButton.config(text='Show Apps')
+        hidden = True
+    else:
+        print("showing")
+        leftFrame.grid(row=0)
+        displayAppsButton.config(text='Hide Apps')
+        hidden = False
     pass
 
 
@@ -134,6 +141,8 @@ def changeColours():
     for widget in leftFrameButtons.winfo_children():
         widget.config(background=colour)
     for widget in rightFrameButtons.winfo_children():
+        widget.config(background=colour)
+    for widget in separator.winfo_children():
         widget.config(background=colour)
 
 def pauseTimer():
@@ -343,9 +352,11 @@ print(timerInput.get())
 #TITLE:
 label1 = tk.Label(headerFrame,text="App Runner",bg='white')
 label2 = tk.Label(headerFrame,text="Timer",bg='white')
-label1.grid(row=0)
-label2.grid(row=0,column=1)
-
+label1.grid(row=0,sticky='w')
+label2.grid(row=0,column=2,sticky='w')
+# headerFrame.grid_columnconfigure(0,weight=1,uniform='title')
+# headerFrame.grid_columnconfigure(1,weight=0)
+# headerFrame.grid_columnconfigure(2,weight=1,uniform='title')
 
 #--- BUTTONS ---
 stopTimer = tk.Button(rightFrameButtons, text="Stop Timer", padx=10,
@@ -380,12 +391,12 @@ runApps.pack(side='left',anchor='s')
 
 
 #arrow button <> goes here probably in middle frame?
-showAppsButton = tk.Button(separator, text="Show Apps", padx=10,
-                    pady=5,fg="white",bg=defaultColour1, command=showApps)
-showAppsButton.pack(side='left',expand=True,fill='both',anchor='s')
-hideAppsButton = tk.Button(separator, text="Hide Apps", padx=10,
-                    pady=5,fg="white",bg=defaultColour1, command=hideApps)
-hideAppsButton.pack(side='left',expand=True,fill='both',anchor='s')
+displayAppsButton = tk.Button(separator, text="Hide Apps", padx=10,
+                    pady=5,fg="white",bg=defaultColour1, command=displayApps)
+displayAppsButton.pack(side='left',expand=True,fill='both', anchor='s')
+# hideAppsButton = tk.Button(separator, text="Hide Apps", padx=10,
+#                     pady=5,fg="white",bg=defaultColour1, command=hideApps)
+# hideAppsButton.pack(side='left',expand=True,fill='both',anchor='s')
 
 
 #when app starts up for first time

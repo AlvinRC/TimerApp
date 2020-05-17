@@ -27,11 +27,11 @@ Progress:
 - Toggle colour change (only two shades)
 - Added pause,continue timer functionality
 - Added more spacing frames and move buttons to correct frames
+- Added button to hide run apps section (with toggle <> buttons)
 
 
 Current plans:
 - add colour scheme change options (more than toggle option)
-- reduce size of run apps section (with toggle <> buttons)
 - daily timers (7 days)
 - total timer (store presets of these for each day/sesh)
 - add remove app
