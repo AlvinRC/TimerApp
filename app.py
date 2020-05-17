@@ -1,5 +1,6 @@
 #GUI
 import tkinter as tk
+import tkinter.ttk as ttk
 #file dialog help us pick apps, text helps us display text
 from tkinter import filedialog, Text
 #os allows us to run applications
@@ -8,6 +9,10 @@ import threading
 #external file import
 import timerApp
 import winsound
+#date time
+import datetime
+
+
 
 #--- ROOT ---
 #create root of app
@@ -26,6 +31,7 @@ paused = False
 hidden = False
 defaultColour1 = '#7289da'
 defaultColour2 = "#00adef"
+weekday = datetime.datetime.today().weekday()
 
 #--- Default sound file ---
 soundFile = 'shortBeepSound.wav'
@@ -36,6 +42,45 @@ if os.path.isfile('save.txt'):
         tempApps = tempApps.split(',')
         #for every element in tempapps after we strip empty
         apps = [x for x in tempApps if x.strip()]
+
+
+def populateTree(tree):
+    tree.insert('', 'end', text="Config 1", values=('5:0:0','5:0:0','5:0:0','5:0:0','5:0:0','4:0:0','4:0:0'))
+def createTree():
+    global weekday
+    #tree view
+    tree = ttk.Treeview(rightFrameTree,style="Treeview",height='1')
+    s = ttk.Style()
+    s.configure('Treeview',rowheight=20)
+    s.configure('Treeview.Cell',foreground='blue')
+    # s.configure("mystyle.Treeview.column", highlightthickness=0, bd=0, font=('Calibri', 11)) # Modify the font of the body
+
+    tree['columns'] = ('mon','tue','wed','thu','fri','sat','sun')
+    tree.heading("#0", text='Daily Total Timers', anchor='w')
+    tree.column("#0", anchor="w")
+    tree.heading('mon', text='Monday')
+    tree.column('mon', anchor='center', width=100)
+    tree.heading('tue', text='Tuesday')
+    tree.column('tue', anchor='center', width=100)
+    tree.heading('wed', text='Wednesday')
+    tree.column('wed', anchor='center', width=100)
+    tree.heading('thu', text='Thursday')
+    tree.column('thu', anchor='center', width=100)
+    tree.heading('fri', text='Friday')
+    tree.column('fri', anchor='center', width=100)
+    tree.heading('sat', text='Saturday')
+    tree.column('sat', anchor='center', width=100)
+    tree.heading('sun', text='Sunday')
+    tree.column('sun', anchor='center', width=100)
+    tree.grid()
+    populateTree(tree)
+
+    week = list(('','','','','','',''))
+    week[weekday]='^'
+    week = tuple(week)
+    tree.config(height='2')
+    tree.insert('','end',text='',values=week)
+
 
 
 def alarmSound():
@@ -61,7 +106,7 @@ def displayApps():
         hidden = True
     else:
         print("showing")
-        leftFrame.grid(row=0)
+        leftFrame.grid(row=0,sticky='nsew')
         displayAppsButton.config(text='Hide Apps')
         hidden = False
     pass
@@ -319,31 +364,58 @@ rightFrame.grid_columnconfigure(1,weight=1,uniform='group2')
 # rightFrame.place(relwidth=0.49,relheight=0.8, relx=0.51, rely=0.05)
 
 #right frames
+rightFrameTree = tk.Frame(rightFrame,bg="#99aab5")
+rightFrameTree.grid(row=0,columnspan=2,stick='w')
+
 rightFrame1 = tk.Frame(rightFrame,bg="#99aab5")
-rightFrame1.grid(row=0,sticky='w')
+rightFrame1.grid(row=1,sticky='w')
 rightFrame1right = tk.Frame(rightFrame,bg="#99aab5")
-rightFrame1right.grid(row=0,column=1,sticky='e')
+rightFrame1right.grid(row=1,column=1,sticky='e')
 rightFrame2 = tk.Frame(rightFrame,bg="#99aab5")
-rightFrame2.grid(row=1,sticky='w')
+rightFrame2.grid(row=2,sticky='w')
 rightFrame2right = tk.Frame(rightFrame,bg="#99aab5")
-rightFrame2right.grid(row=1,column=1,sticky='e')
+rightFrame2right.grid(row=2,column=1,sticky='e')
 
 rightFrameTimer = tk.Frame(rightFrame,bg="#99aab5")
-rightFrameTimer.grid(row=2,columnspan=2,stick='w')
+rightFrameTimer.grid(row=3,columnspan=2,stick='w')
 
 rightFrameButtons = tk.Frame(rightFrame,bg="#99aab5")
-rightFrameButtons.grid(row=3,columnspan=2,stick='w')
+rightFrameButtons.grid(row=4,columnspan=2,stick='w')
+
+
+
+
+createTree()
+# self.grid_rowconfigure(0, weight = 1)
+# self.grid_columnconfigure(0, weight = 1)
+
+
+# label = tk.Label(rightFrame1,text="Daily Timers",bg='white')
+# labelMonday = tk.Label(rightFrame1,text="Monday",bg='white')
+# labelTuesday = tk.Label(rightFrame1,text="Tuesday",bg='white')
+# labelWednesday = tk.Label(rightFrame1,text="Wednesday",bg='white')
+# labelThursday = tk.Label(rightFrame1,text="Thursday",bg='white')
+# labelFriday = tk.Label(rightFrame1,text="Friday",bg='white')
+# labelSaturday = tk.Label(rightFrame1,text="Saturday",bg='white')
+# labelMonday = tk.Label(rightFrame1,text="Sunday",bg='white')
+
 
 #--- INPUT GRID
+
 label1 = tk.Label(rightFrame1,text="Enter Timer Interval",bg='white')
 timerInput = tk.Entry(rightFrame1right,bg="lightgray")
 label2 = tk.Label(rightFrame2,text="Enter Sound File Name: e.g beep.wav",bg='white')
 soundInput = tk.Entry(rightFrame2right,bg="lightgray")
 
-label1.pack(anchor='w')
-timerInput.pack(anchor='e')
-label2.pack(anchor='w')
-soundInput.pack(anchor='e')
+label1.grid(row=2,sticky='w')
+timerInput.grid(row=2,column=1,sticky='w')
+label2.grid(row=2,column=1,sticky='w')
+soundInput.grid(row=2,sticky='w')
+
+# label1.pack(anchor='w')
+# timerInput.pack(anchor='e')
+# label2.pack(anchor='w')
+# soundInput.pack(anchor='e')
 
 # soundInput.place( relx=0.51, rely=0.10)
 print(timerInput.get())
