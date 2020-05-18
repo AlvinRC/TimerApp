@@ -12,7 +12,8 @@ import winsound
 #date time
 import datetime
 
-
+#---- EDIT CONFIG HERE -----
+dailyTimeConfig = ('5:0:0','5:0:0','5:0:0','5:0:0','5:0:0','4:0:0','4:0:0')
 
 #--- ROOT ---
 #create root of app
@@ -29,6 +30,9 @@ changed = False
 ended = False
 paused = False
 hidden = False
+dh=0
+dm=0
+ds=0
 defaultColour1 = '#7289da'
 defaultColour2 = "#00adef"
 weekday = datetime.datetime.today().weekday()
@@ -45,7 +49,8 @@ if os.path.isfile('save.txt'):
 
 
 def populateTree(tree):
-    tree.insert('', 'end', text="Config 1", values=('5:0:0','5:0:0','5:0:0','5:0:0','5:0:0','4:0:0','4:0:0'))
+    global dailyTimeConfig
+    tree.insert('', 'end', text="Config 1", values=dailyTimeConfig)
 def createTree():
     global weekday
     #tree view
@@ -80,8 +85,25 @@ def createTree():
     week = tuple(week)
     tree.config(height='2')
     tree.insert('','end',text='',values=week)
+    tree.winfo_children()
+    
+    createDailyTimer(tree)
 
-
+def createDailyTimer(tree):
+    global weekday,dh,dm,ds
+    configNum = 0
+    currConfig = tree.item(tree.get_children()[configNum])["values"]
+    currDaily = currConfig[weekday]
+    print(currDaily)
+    # for child in tree.get_children():
+    #     print(tree.item(child)["values"])
+    # pass
+    
+    dh = int(currDaily.split(":")[0])
+    dm = int(currDaily.split(":")[1])
+    ds = int(currDaily.split(":")[2])
+    timerLabel = tk.Label(rightFrameDaily,text="Daily Timer: %s:%s:%s" % (dh, dm, ds), font=("Consolas", 20),bg='white')
+    timerLabel.pack(anchor='w')
 
 def alarmSound():
     #Beep Defs
@@ -254,8 +276,8 @@ def runTimer(timerInput):
         timerLabel.pack(anchor='w')
 
 def displayTimer(timerInputList):
-    global run, s, m, h,textId,currActive,finished
-    
+    global run, s, m, h,textId,currActive,finished,dh,dm,ds
+
     global paused,ended
     #check that new time isnt > time limit
     #stop early
@@ -274,12 +296,38 @@ def displayTimer(timerInputList):
             paused = False
             finished = False
         return 
-
+    
     for widget in rightFrameTimer.winfo_children():
         widget.destroy()
     #add new text
     timerLabel = tk.Label(rightFrameTimer,text="Timer: %s:%s:%s" % (h, m, s), font=("Consolas", 20),bg='white')
     timerLabel.pack(anchor='w')
+    for widget in rightFrameDaily.winfo_children():
+        widget.destroy()
+    dailyLabel = tk.Label(rightFrameDaily,text="Daily Timer: %s:%s:%s" % (dh, dm, ds), font=("Consolas", 20),bg='white')
+    dailyLabel.pack(anchor='w')
+    
+    
+    ds-=1
+    if(ds == -1):
+        dm-=1; ds = 59
+        if dm == -1:
+            dh-=1; dm = 59
+            if dh == -1:
+                #finished
+                dh = 0
+                dm = 0
+                ds = 0
+                print("Daily Finished")
+                currActive = True
+                #play sound
+                alarmThread = threading.Thread(target=alarmSound)
+                alarmThread.start()
+                return
+
+    # if dh == 0 and dm == 0 and ds == 0:
+    #     return     
+    # rightFrameDaily
     s+=1
     if s == 59:
         m+=1; s=0
@@ -366,21 +414,23 @@ rightFrame.grid_columnconfigure(1,weight=1,uniform='group2')
 #right frames
 rightFrameTree = tk.Frame(rightFrame,bg="#99aab5")
 rightFrameTree.grid(row=0,columnspan=2,stick='w')
+rightFrameDaily = tk.Frame(rightFrame,bg="#99aab5")
+rightFrameDaily.grid(row=1,sticky='w')
 
 rightFrame1 = tk.Frame(rightFrame,bg="#99aab5")
-rightFrame1.grid(row=1,sticky='w')
+rightFrame1.grid(row=2,sticky='w')
 rightFrame1right = tk.Frame(rightFrame,bg="#99aab5")
-rightFrame1right.grid(row=1,column=1,sticky='e')
+rightFrame1right.grid(row=2,column=1,sticky='e')
 rightFrame2 = tk.Frame(rightFrame,bg="#99aab5")
-rightFrame2.grid(row=2,sticky='w')
+rightFrame2.grid(row=3,sticky='w')
 rightFrame2right = tk.Frame(rightFrame,bg="#99aab5")
-rightFrame2right.grid(row=2,column=1,sticky='e')
+rightFrame2right.grid(row=3,column=1,sticky='e')
 
 rightFrameTimer = tk.Frame(rightFrame,bg="#99aab5")
-rightFrameTimer.grid(row=3,columnspan=2,stick='w')
+rightFrameTimer.grid(row=4,columnspan=2,stick='w')
 
 rightFrameButtons = tk.Frame(rightFrame,bg="#99aab5")
-rightFrameButtons.grid(row=4,columnspan=2,stick='w')
+rightFrameButtons.grid(row=5,columnspan=2,stick='w')
 
 
 
@@ -398,6 +448,8 @@ createTree()
 # labelFriday = tk.Label(rightFrame1,text="Friday",bg='white')
 # labelSaturday = tk.Label(rightFrame1,text="Saturday",bg='white')
 # labelMonday = tk.Label(rightFrame1,text="Sunday",bg='white')
+
+
 
 
 #--- INPUT GRID
