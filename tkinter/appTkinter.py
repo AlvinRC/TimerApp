@@ -13,7 +13,9 @@ import winsound
 import datetime
 
 #---- EDIT CONFIG HERE -----
-dailyTimeConfig = ('5:0:0','5:0:0','5:0:0','5:0:0','5:0:0','4:0:0','4:0:0')
+dailyTimeConfig = []
+dailyTimeConfigNum = 0
+# dailyTimeConfig = ('5:0:0','5:0:0','5:0:0','5:0:0','5:0:0','4:0:0','4:0:0')
 
 #--- ROOT ---
 #create root of app
@@ -47,14 +49,25 @@ if os.path.isfile('save.txt'):
         #for every element in tempapps after we strip empty
         apps = [x for x in tempApps if x.strip()]
 
+if os.path.isfile('dailyConfig.txt'):
+    with open("dailyConfig.txt",'r') as f:
+        tmpDaily = f.read()
+        if(not tmpDaily):
+            pass
+        else:
+            print(tmpDaily)
+            tmpDaily = tmpDaily.split('|')
+            dailyTimeConfig = [x.replace('\'','').replace(',','').replace('(','').replace(')','') for x in tmpDaily if x.strip()]
+            print(dailyTimeConfig)
 
 def populateTree(tree):
     global dailyTimeConfig
-    tree.insert('', 'end', text="Config 1", values=dailyTimeConfig)
-def createTree():
+    if (not dailyTimeConfig):
+        dailyTimeConfig.append(('5:0:0','5:0:0','5:0:0','5:0:0','5:0:0','4:0:0','4:0:0'))
+    tree.insert('', 'end', text="Config 1", values=dailyTimeConfig[dailyTimeConfigNum])
+def createTree(tree):
     global weekday
     #tree view
-    tree = ttk.Treeview(rightFrameTree,style="Treeview",height='1')
     s = ttk.Style()
     s.configure('Treeview',rowheight=20)
     s.configure('Treeview.Cell',foreground='blue')
@@ -102,11 +115,12 @@ def createDailyTimer(tree):
     dh = int(currDaily.split(":")[0])
     dm = int(currDaily.split(":")[1])
     ds = int(currDaily.split(":")[2])
+
     timerLabel = tk.Label(rightFrameDaily,text="Daily Timer: %s:%s:%s" % (dh, dm, ds), font=("Consolas", 20),bg='white')
     timerLabel.pack(anchor='w')
 
 def setDaily(dailyTimerInput):
-    global dh, dm,ds
+    global dh, dm,ds, weekday, dailyTimeConfig,dailyTimeConfigNum,tree
     print(dailyTimerInput)
     tmpdh = int(dailyTimerInput.get().split(":")[0])
     tmpdm = int(dailyTimerInput.get().split(":")[1])
@@ -123,6 +137,29 @@ def setDaily(dailyTimerInput):
     dh = tmpdh
     dm = tmpdm
     ds = tmpds
+    print(dailyTimeConfig)
+    tmpConfig = dailyTimeConfig[dailyTimeConfigNum].split(' ')
+    newConfig = ''
+    count = 0
+    for tmp in tmpConfig:
+        if(count == weekday):
+            tmp = "%s:%s:%s" % (dh, dm, ds)
+        # print(tmp)
+        newConfig += tmp+' '
+        count += 1
+    
+    print(newConfig.strip())
+    dailyTimeConfig[dailyTimeConfigNum] = newConfig.strip()
+    #edit tree values 
+    print(tree.item(tree.get_children()[dailyTimeConfigNum])["values"])
+    #tree.item(tree.get_children()[dailyTimeConfigNum])["values"]
+    tree.delete(tree.get_children()[dailyTimeConfigNum])
+    tree.insert('',1,newConfig.strip().split(' '))
+    print(newConfig.strip().split(' '))
+    print(tree.item(tree.get_children()[dailyTimeConfigNum])["values"])
+    #cant redisplay tree TODO
+    print(tree.item(tree.get_children()[1])["values"])
+    # dailyTimeConfig[dailyTimeConfigNum][weekday] = "%s:%s:%s" % (dh, dm, ds)
     for widget in rightFrameDaily.winfo_children():
         widget.destroy()
     timerLabel = tk.Label(rightFrameDaily,text="Daily Timer: %s:%s:%s" % (dh, dm, ds), font=("Consolas", 20),bg='white')
@@ -460,8 +497,8 @@ rightFrameButtons.grid(row=6,columnspan=2,stick='w')
 
 
 
-
-createTree()
+tree = ttk.Treeview(rightFrameTree,style="Treeview",height='1')
+createTree(tree)
 # self.grid_rowconfigure(0, weight = 1)
 # self.grid_columnconfigure(0, weight = 1)
 
@@ -579,3 +616,8 @@ with open('save.txt','w') as f:
     #save our preferences comma separated
     for app in apps:
         f.write(app + ',')
+with open('dailyConfig.txt','w') as f:
+    #save our preferences comma separated
+    for dailyConfig in dailyTimeConfig:
+        print(dailyConfig)
+        f.write(str(dailyConfig) + '|')
