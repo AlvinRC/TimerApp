@@ -105,6 +105,28 @@ def createDailyTimer(tree):
     timerLabel = tk.Label(rightFrameDaily,text="Daily Timer: %s:%s:%s" % (dh, dm, ds), font=("Consolas", 20),bg='white')
     timerLabel.pack(anchor='w')
 
+def setDaily(dailyTimerInput):
+    global dh, dm,ds
+    print(dailyTimerInput)
+    tmpdh = int(dailyTimerInput.get().split(":")[0])
+    tmpdm = int(dailyTimerInput.get().split(":")[1])
+    tmpds = int(dailyTimerInput.get().split(":")[2])
+    if(tmpdh not in range(0,24)):
+        print("INVALID HOUR")
+        return
+    if(tmpdm not in range(0,59)):
+        print("INVALID MINS")
+        return 
+    if(tmpds not in range(0,59)):
+        print("INVALID SECS ")
+        return
+    dh = tmpdh
+    dm = tmpdm
+    ds = tmpds
+    for widget in rightFrameDaily.winfo_children():
+        widget.destroy()
+    timerLabel = tk.Label(rightFrameDaily,text="Daily Timer: %s:%s:%s" % (dh, dm, ds), font=("Consolas", 20),bg='white')
+    timerLabel.pack(anchor='w')
 def alarmSound():
     #Beep Defs
     duration = 1000  # milliseconds
@@ -425,12 +447,16 @@ rightFrame2 = tk.Frame(rightFrame,bg="#99aab5")
 rightFrame2.grid(row=3,sticky='w')
 rightFrame2right = tk.Frame(rightFrame,bg="#99aab5")
 rightFrame2right.grid(row=3,column=1,sticky='e')
+rightFrame3 = tk.Frame(rightFrame,bg="#99aab5")
+rightFrame3.grid(row=4,sticky='w')
+rightFrame3right = tk.Frame(rightFrame,bg="#99aab5")
+rightFrame3right.grid(row=4,column=1,sticky='e')
 
 rightFrameTimer = tk.Frame(rightFrame,bg="#99aab5")
-rightFrameTimer.grid(row=4,columnspan=2,stick='w')
+rightFrameTimer.grid(row=5,columnspan=2,stick='w')
 
 rightFrameButtons = tk.Frame(rightFrame,bg="#99aab5")
-rightFrameButtons.grid(row=5,columnspan=2,stick='w')
+rightFrameButtons.grid(row=6,columnspan=2,stick='w')
 
 
 
@@ -456,13 +482,18 @@ createTree()
 
 label1 = tk.Label(rightFrame1,text="Enter Timer Interval",bg='white')
 timerInput = tk.Entry(rightFrame1right,bg="lightgray")
-label2 = tk.Label(rightFrame2,text="Enter Sound File Name: e.g beep.wav",bg='white')
-soundInput = tk.Entry(rightFrame2right,bg="lightgray")
+label2 = tk.Label(rightFrame2,text="Enter Custom Daily Timer",bg='white')
+dailyTimerInput = tk.Entry(rightFrame2right,bg="lightgray")
+label3 = tk.Label(rightFrame3,text="Enter Sound File Name: e.g beep.wav",bg='white')
+soundInput = tk.Entry(rightFrame3right,bg="lightgray")
 
 label1.grid(row=2,sticky='w')
 timerInput.grid(row=2,column=1,sticky='w')
-label2.grid(row=2,column=1,sticky='w')
-soundInput.grid(row=2,sticky='w')
+label2.grid(row=3,column=1,sticky='w')
+dailyTimerInput.grid(row=3,sticky='w')
+label3.grid(row=4,column=1,sticky='w')
+soundInput.grid(row=4,sticky='w')
+
 
 # label1.pack(anchor='w')
 # timerInput.pack(anchor='e')
@@ -483,6 +514,12 @@ label2.grid(row=0,column=2,sticky='w')
 # headerFrame.grid_columnconfigure(2,weight=1,uniform='title')
 
 #--- BUTTONS ---
+setSoundButton = tk.Button(rightFrameButtons, text="Set Alarm Sound", padx=10,
+                    pady=5,fg="white",bg=defaultColour1, command=lambda: setSoundFile(soundInput))
+setSoundButton.pack(side='right',anchor='s')
+setNewDaily = tk.Button(rightFrameButtons, text="Set Custom Daily", padx=10,
+                    pady=5,fg="white",bg=defaultColour1, command=lambda: setDaily(dailyTimerInput))
+setNewDaily.pack(side='right',anchor='s')
 stopTimer = tk.Button(rightFrameButtons, text="Stop Timer", padx=10,
                     pady=5,fg="white",bg=defaultColour1, command=endTimer)
 stopTimer.pack(side='right',anchor='s')
@@ -495,9 +532,7 @@ resumeTimerButton.pack(side='right',anchor='s')
 startTimer = tk.Button(rightFrameButtons, text="Start Timer", padx=10,
                     pady=5,fg="white",bg=defaultColour1, command=lambda: runTimer(timerInput))
 startTimer.pack(side='right',anchor='s')
-setSoundButton = tk.Button(rightFrameButtons, text="Set Alarm Sound", padx=10,
-                    pady=5,fg="white",bg=defaultColour1, command=lambda: setSoundFile(soundInput))
-setSoundButton.pack(side='right',anchor='s')
+
 
 changeColour = tk.Button(footerFrame, text="Change Colours", padx=10,
                     pady=5,fg="white",bg=defaultColour1, command=changeColours)

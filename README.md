@@ -33,25 +33,31 @@ Progress:
 -15/05/20
     - Added pause,continue timer functionality
     - Added more spacing frames and move buttons to correct frames
+    - Added remove app
 -17/05/20
     - Added button to hide run apps section (with toggle <> buttons)
     - Added daily timer config display
+-18/05/20 
+    - Added daily total timer and linked to regular timers
+-19/05/20
+    - Added custom daily timers
 
-Old plans:
-- add colour scheme change options (more than toggle option)
-- daily timers (7 days)
-- total timer (store presets of these for each day/sesh)
-- add remove app
+
+
+Current plans:
+- Add daily timer editable config
 - add nice GUI (desktop)
-- remove lag and delays
+- add colour scheme change options (more than toggle option)
 - make it fully functional from GUI
 ---------------------------------------------------------------------
 
-Changing from tkinter to pyqt5 (17/05/20)
+Changing from tkinter to pyqt5 (soon)
 
 ---------------------------------------------------------------------
 Progress:
 -
 
 Plans:
-- Learn pyqt5
+- Learn pyqt5 (https://build-system.fman.io/pyqt5-tutorial) or qt (https://www.qt.io/qt-for-python)
+- Learn https://build-system.fman.io/
+- Watch https://morioh.com/p/6c19bfda96f7
