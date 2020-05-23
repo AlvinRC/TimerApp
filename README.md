@@ -43,9 +43,13 @@ Progress:
     - Added custom daily timers
 - 23/05/20
     - Fixed daily timer bug
+    - Fixed hourly timer bug
 
 
 Current plans:
+- Add separate NON-daily timer
+- Add todo list
+- Get perms to run on startup
 - Add daily timer editable config
 - Reformat into a nicer GUI (desktop)
 - Add colour scheme change options (more than toggle option)
