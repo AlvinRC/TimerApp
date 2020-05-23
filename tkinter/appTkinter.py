@@ -55,10 +55,10 @@ if os.path.isfile('dailyConfig.txt'):
         if(not tmpDaily):
             pass
         else:
-            print(tmpDaily)
+            # print(tmpDaily)
             tmpDaily = tmpDaily.split('|')
             dailyTimeConfig = [x.replace('\'','').replace(',','').replace('(','').replace(')','') for x in tmpDaily if x.strip()]
-            print(dailyTimeConfig)
+            # print(dailyTimeConfig)
 
 def populateTree(tree):
     global dailyTimeConfig
@@ -183,12 +183,12 @@ def displayApps():
     if (not hidden):
         print("hiding")
         leftFrame.grid_forget()
-        displayAppsButton.config(text='Show Apps')
+        displayAppsButton.config(text='>')
         hidden = True
     else:
         print("showing")
         leftFrame.grid(row=0,sticky='nsew')
-        displayAppsButton.config(text='Hide Apps')
+        displayAppsButton.config(text='<')
         hidden = False
     pass
 
@@ -587,7 +587,7 @@ runApps.pack(side='left',anchor='s')
 
 
 #arrow button <> goes here probably in middle frame?
-displayAppsButton = tk.Button(separator, text="Hide Apps", padx=10,
+displayAppsButton = tk.Button(separator, text="<", padx=10,
                     pady=5,fg="white",bg=defaultColour1, command=displayApps)
 displayAppsButton.pack(side='left',expand=True,fill='both', anchor='s')
 # hideAppsButton = tk.Button(separator, text="Hide Apps", padx=10,

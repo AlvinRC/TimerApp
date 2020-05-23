@@ -25,30 +25,31 @@ Progress:
 - 7/05/20
     - Started on GUI
     - Added feature (run multiple programs at once when button is pressed + store this config for future use)
--9/05/20
+- 9/05/20
     - Added feature (start timer, stop timer, set timer sound)
     - Fixed GUI placements
--11/05/20
+- 11/05/20
     - Toggle colour change (only two shades)
--15/05/20
+- 15/05/20
     - Added pause,continue timer functionality
     - Added more spacing frames and move buttons to correct frames
     - Added remove app
--17/05/20
+- 17/05/20
     - Added button to hide run apps section (with toggle <> buttons)
     - Added daily timer config display
--18/05/20 
+- 18/05/20 
     - Added daily total timer and linked to regular timers
--19/05/20
+- 19/05/20
     - Added custom daily timers
-
+- 23/05/20
+    - Fixed daily timer bug
 
 
 Current plans:
 - Add daily timer editable config
-- add nice GUI (desktop)
-- add colour scheme change options (more than toggle option)
-- make it fully functional from GUI
+- Reformat into a nicer GUI (desktop)
+- Add colour scheme change options (more than toggle option)
+- Clean up code
 ---------------------------------------------------------------------
 
 Changing from tkinter to pyqt5 (soon)
