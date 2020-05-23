@@ -17,7 +17,7 @@ Usage:
 
 Progress: 
 - 6/05/20
-    - Displays console message when alarm time is reached ()
+    - Displays console message when alarm time is reached
     - Added stop alarm functionality
     - Added Better Format 
     - Added easy exit timer
