@@ -46,6 +46,8 @@ Progress:
     - Fixed hourly timer bug
 -28/05/20  
     - Separated daily and regular timers
+-30/05/20
+    - Fixed daily config table not updating properly
 
 Current plans:
 - Fix slowly increasing size of window when refreshing tree
