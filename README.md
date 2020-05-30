@@ -44,9 +44,11 @@ Progress:
 - 23/05/20
     - Fixed daily timer bug
     - Fixed hourly timer bug
-
+-28/05/20  
+    - Separated daily and regular timers
 
 Current plans:
+- Fix slowly increasing size of window when refreshing tree
 - Add separate NON-daily timer
 - Add todo list
 - Get perms to run on startup

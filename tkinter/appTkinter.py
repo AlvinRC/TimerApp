@@ -1,6 +1,7 @@
 #GUI
 import tkinter as tk
 import tkinter.ttk as ttk
+import tkinter.font as tkFont
 #file dialog help us pick apps, text helps us display text
 from tkinter import filedialog, Text
 #os allows us to run applications
@@ -15,7 +16,6 @@ import datetime
 #---- EDIT CONFIG HERE -----
 dailyTimeConfig = []
 dailyTimeConfigNum = 0
-# dailyTimeConfig = ('5:0:0','5:0:0','5:0:0','5:0:0','5:0:0','4:0:0','4:0:0')
 
 #--- ROOT ---
 #create root of app
@@ -26,15 +26,10 @@ apps = []
 checked = []
 run = True; s=0; m=0; h=0
 textId=-1
-currActive = False
-finished = False
-changed = False
-ended = False
-paused = False
-hidden = False
-dh=0
-dm=0
-ds=0
+currActive=False; finished = False;changed = False;ended = False;paused = False;hidden = False
+dh=0;dm=0;ds=0
+daily = False
+currActiveSep = False
 defaultColour1 = '#7289da'
 defaultColour2 = "#00adef"
 weekday = datetime.datetime.today().weekday()
@@ -42,12 +37,17 @@ weekday = datetime.datetime.today().weekday()
 #--- Default sound file ---
 soundFile = 'shortBeepSound.wav'
 
-if os.path.isfile('save.txt'):
-    with open("save.txt",'r') as f:
-        tempApps = f.read()
-        tempApps = tempApps.split(',')
-        #for every element in tempapps after we strip empty
-        apps = [x for x in tempApps if x.strip()]
+if not os.path.isfile('save.txt'):
+    f = open("save.txt",'w+')
+    f.close()
+
+with open("save.txt",'r') as f:
+    tempApps = f.read()
+    tempApps = tempApps.split(',')
+    #for every element in tempapps after we strip empty
+    apps = [x for x in tempApps if x.strip()]
+
+
 
 if os.path.isfile('dailyConfig.txt'):
     with open("dailyConfig.txt",'r') as f:
@@ -65,6 +65,13 @@ def populateTree(tree):
     if (not dailyTimeConfig):
         dailyTimeConfig.append(('5:0:0','5:0:0','5:0:0','5:0:0','5:0:0','4:0:0','4:0:0'))
     tree.insert('', 'end', text="Config 1", values=dailyTimeConfig[dailyTimeConfigNum])
+
+def displayDay(tree):
+    week = list(('','','','','','',''))
+    week[weekday]='^'
+    week = tuple(week)
+    tree.config(height='2')
+    tree.insert('','end',text='Current Day',values=week)
 def createTree(tree):
     global weekday
     #tree view
@@ -77,28 +84,29 @@ def createTree(tree):
     tree.heading("#0", text='Daily Total Timers', anchor='w')
     tree.column("#0", anchor="w")
     tree.heading('mon', text='Monday')
-    tree.column('mon', anchor='center', width=100)
+    tree.column('mon', anchor='center', width=80)
     tree.heading('tue', text='Tuesday')
-    tree.column('tue', anchor='center', width=100)
+    tree.column('tue', anchor='center', width=80)
     tree.heading('wed', text='Wednesday')
-    tree.column('wed', anchor='center', width=100)
+    tree.column('wed', anchor='center', width=80)
     tree.heading('thu', text='Thursday')
-    tree.column('thu', anchor='center', width=100)
+    tree.column('thu', anchor='center', width=80)
     tree.heading('fri', text='Friday')
-    tree.column('fri', anchor='center', width=100)
+    tree.column('fri', anchor='center', width=80)
     tree.heading('sat', text='Saturday')
-    tree.column('sat', anchor='center', width=100)
+    tree.column('sat', anchor='center', width=80)
     tree.heading('sun', text='Sunday')
-    tree.column('sun', anchor='center', width=100)
+    tree.column('sun', anchor='center', width=80)
+    
+    
+        
+
+
     tree.grid()
     populateTree(tree)
-
-    week = list(('','','','','','',''))
-    week[weekday]='^'
-    week = tuple(week)
-    tree.config(height='2')
-    tree.insert('','end',text='',values=week)
-    tree.winfo_children()
+    displayDay(tree)
+    
+    # tree.winfo_children()
     
     createDailyTimer(tree)
 
@@ -121,7 +129,7 @@ def createDailyTimer(tree):
 
 def setDaily(dailyTimerInput):
     global dh, dm,ds, weekday, dailyTimeConfig,dailyTimeConfigNum,tree
-    print(dailyTimerInput)
+    #print(dailyTimerInput)
     tmpdh = int(dailyTimerInput.get().split(":")[0])
     tmpdm = int(dailyTimerInput.get().split(":")[1])
     tmpds = int(dailyTimerInput.get().split(":")[2])
@@ -137,7 +145,7 @@ def setDaily(dailyTimerInput):
     dh = tmpdh
     dm = tmpdm
     ds = tmpds
-    print(dailyTimeConfig)
+    # print(dailyTimeConfig)
     tmpConfig = dailyTimeConfig[dailyTimeConfigNum].split(' ')
     newConfig = ''
     count = 0
@@ -147,23 +155,27 @@ def setDaily(dailyTimerInput):
         # print(tmp)
         newConfig += tmp+' '
         count += 1
-    
-    print(newConfig.strip())
+    print("weow")
+    print(newConfig.strip().split(' '))
     dailyTimeConfig[dailyTimeConfigNum] = newConfig.strip()
     #edit tree values 
     print(tree.item(tree.get_children()[dailyTimeConfigNum])["values"])
     #tree.item(tree.get_children()[dailyTimeConfigNum])["values"]
-    tree.delete(tree.get_children()[dailyTimeConfigNum])
-    tree.insert('',1,newConfig.strip().split(' '))
-    print(newConfig.strip().split(' '))
-    print(tree.item(tree.get_children()[dailyTimeConfigNum])["values"])
-    #cant redisplay tree TODO
-    print(tree.item(tree.get_children()[1])["values"])
-    # dailyTimeConfig[dailyTimeConfigNum][weekday] = "%s:%s:%s" % (dh, dm, ds)
+    # print("children")
+    # print(tree.get_children())
+    for child in tree.get_children():
+        tree.delete(child)
+    # tree.delete(tree.get_children()[dailyTimeConfigNum])
+    tree.insert('','end',text="Updated Config", values=newConfig.strip().split(' '))
+    displayDay(tree)
+    # print(newConfig.strip().split(' '))
+    # print(tree.item(tree.get_children()[dailyTimeConfigNum])["values"])
+    # print(tree.item(tree.get_children()[1])["values"])
     for widget in rightFrameDaily.winfo_children():
         widget.destroy()
     timerLabel = tk.Label(rightFrameDaily,text="Daily Timer: %s:%s:%s" % (dh, dm, ds), font=("Consolas", 20),bg='white')
     timerLabel.pack(anchor='w')
+
 def alarmSound():
     #Beep Defs
     duration = 1000  # milliseconds
@@ -282,8 +294,9 @@ def resumeTimer():
     paused = False
 
 def endTimer():
-    global ended,paused
+    global ended,paused,daily
     setActive()
+    daily = False
     ended = True
     paused = False
 
@@ -335,8 +348,7 @@ def runTimer(timerInput):
         timerLabel.pack(anchor='w')
 
 def displayTimer(timerInputList):
-    global run, s, m, h,textId,currActive,finished,dh,dm,ds
-
+    global run, s, m, h,textId,currActive,finished,dh,dm,ds,daily
     global paused,ended
     #check that new time isnt > time limit
     #stop early
@@ -354,6 +366,7 @@ def displayTimer(timerInputList):
             s = 0
             paused = False
             finished = False
+            daily = False
         return 
     
     for widget in rightFrameTimer.winfo_children():
@@ -361,28 +374,30 @@ def displayTimer(timerInputList):
     #add new text
     timerLabel = tk.Label(rightFrameTimer,text="Timer: %s:%s:%s" % (h, m, s), font=("Consolas", 20),bg='white')
     timerLabel.pack(anchor='w')
-    for widget in rightFrameDaily.winfo_children():
-        widget.destroy()
-    dailyLabel = tk.Label(rightFrameDaily,text="Daily Timer: %s:%s:%s" % (dh, dm, ds), font=("Consolas", 20),bg='white')
-    dailyLabel.pack(anchor='w')
-    
-    
-    ds-=1
-    if(ds == -1):
-        dm-=1; ds = 59
-        if dm == -1:
-            dh-=1; dm = 59
-            if dh == -1:
-                #finished
-                dh = 0
-                dm = 0
-                ds = 0
-                print("Daily Finished")
-                currActive = True
-                #play sound
-                alarmThread = threading.Thread(target=alarmSound)
-                alarmThread.start()
-                return
+    if (daily):
+        for widget in rightFrameDaily.winfo_children():
+            widget.destroy()
+        dailyLabel = tk.Label(rightFrameDaily,text="Daily Timer: %s:%s:%s" % (dh, dm, ds), font=("Consolas", 20),bg='white')
+        dailyLabel.pack(anchor='w')
+        
+        
+        ds-=1
+        if(ds == -1):
+            dm-=1; ds = 59
+            if dm == -1:
+                dh-=1; dm = 59
+                if dh == -1:
+                    #finished
+                    dh = 0
+                    dm = 0
+                    ds = 0
+                    print("Daily Finished")
+                    currActive = True
+                    #play sound
+                    alarmThread = threading.Thread(target=alarmSound)
+                    alarmThread.start()
+                    daily = False
+                    return
 
     # if dh == 0 and dm == 0 and ds == 0:
     #     return     
@@ -414,7 +429,13 @@ def displayTimer(timerInputList):
             m = 0
             s = 0
             finished = False
+            daily = False
             # alarmThread.join()
+
+def runDaily(timerInput):
+    global daily
+    daily = True
+    runTimer(timerInput)
 
 #--- CANVAS ---
 #create and attach canvas to root, set height,width and background colour
@@ -488,6 +509,10 @@ rightFrame3 = tk.Frame(rightFrame,bg="#99aab5")
 rightFrame3.grid(row=4,sticky='w')
 rightFrame3right = tk.Frame(rightFrame,bg="#99aab5")
 rightFrame3right.grid(row=4,column=1,sticky='e')
+# rightFrame4 = tk.Frame(rightFrame,bg="#99aab5")
+# rightFrame4.grid(row=5,sticky='w')
+# rightFrame4right = tk.Frame(rightFrame,bg="#99aab5")
+# rightFrame4right.grid(row=5,column=1,sticky='e')
 
 rightFrameTimer = tk.Frame(rightFrame,bg="#99aab5")
 rightFrameTimer.grid(row=5,columnspan=2,stick='w')
@@ -523,6 +548,8 @@ label2 = tk.Label(rightFrame2,text="Enter Custom Daily Timer",bg='white')
 dailyTimerInput = tk.Entry(rightFrame2right,bg="lightgray")
 label3 = tk.Label(rightFrame3,text="Enter Sound File Name: e.g beep.wav",bg='white')
 soundInput = tk.Entry(rightFrame3right,bg="lightgray")
+# label4 = tk.Label(rightFrame4,text="Enter Separate Timer Interval",bg='white')
+# timerInputSeparate = tk.Entry(rightFrame4right,bg="lightgray")
 
 label1.grid(row=2,sticky='w')
 timerInput.grid(row=2,column=1,sticky='w')
@@ -530,7 +557,8 @@ label2.grid(row=3,column=1,sticky='w')
 dailyTimerInput.grid(row=3,sticky='w')
 label3.grid(row=4,column=1,sticky='w')
 soundInput.grid(row=4,sticky='w')
-
+# label4.grid(row=5,column=1,sticky='w')
+# timerInputSeparate.grid(row=5,sticky='w')
 
 # label1.pack(anchor='w')
 # timerInput.pack(anchor='e')
@@ -569,6 +597,9 @@ resumeTimerButton.pack(side='right',anchor='s')
 startTimer = tk.Button(rightFrameButtons, text="Start Timer", padx=10,
                     pady=5,fg="white",bg=defaultColour1, command=lambda: runTimer(timerInput))
 startTimer.pack(side='right',anchor='s')
+startDailyTimer = tk.Button(rightFrameButtons, text="Start Daily Timer", padx=10,
+                    pady=5,fg="white",bg=defaultColour1, command=lambda: runDaily(timerInput))
+startDailyTimer.pack(side='right',anchor='s')
 
 
 changeColour = tk.Button(footerFrame, text="Change Colours", padx=10,
