@@ -1,14 +1,14 @@
 #GUI
 import tkinter as tk
-import tkinter.ttk as ttk
 import tkinter.font as tkFont
 #file dialog help us pick apps, text helps us display text
 from tkinter import filedialog, Text
-#os allows us to run applications
-import os
 import threading
 #external file import
-import timerApp
+import tkinterValidTimer
+import tkinterFile
+import tkinterApp
+import tkinterTree
 import winsound
 #date time
 import datetime
@@ -27,7 +27,7 @@ checked = []
 run = True; s=0; m=0; h=0
 textId=-1
 currActive=False; finished = False;changed = False;ended = False;paused = False;hidden = False
-dh=0;dm=0;ds=0
+dailyVars=[0,0,0]
 daily = False
 currActiveSep = False
 defaultColour1 = '#7289da'
@@ -37,143 +37,67 @@ weekday = datetime.datetime.today().weekday()
 #--- Default sound file ---
 soundFile = 'shortBeepSound.wav'
 
-if not os.path.isfile('save.txt'):
-    f = open("save.txt",'w+')
-    f.close()
+apps = tkinterFile.readApps()
+dailyTimeConfig = tkinterFile.readDaily()
 
-with open("save.txt",'r') as f:
-    tempApps = f.read()
-    tempApps = tempApps.split(',')
-    #for every element in tempapps after we strip empty
-    apps = [x for x in tempApps if x.strip()]
+def deleteTreeChildren(parent):
+    for child in parent.get_children():
+        parent.delete(child)
+def deleteFrameChildren(parent):
+    for child in parent.winfo_children():
+        child.destroy()
 
-
-
-if os.path.isfile('dailyConfig.txt'):
-    with open("dailyConfig.txt",'r') as f:
-        tmpDaily = f.read()
-        if(not tmpDaily):
-            pass
-        else:
-            # print(tmpDaily)
-            tmpDaily = tmpDaily.split('|')
-            dailyTimeConfig = [x.replace('\'','').replace(',','').replace('(','').replace(')','') for x in tmpDaily if x.strip()]
-            # print(dailyTimeConfig)
-
-def populateTree(tree):
-    global dailyTimeConfig
-    if (not dailyTimeConfig):
-        dailyTimeConfig.append(('5:0:0','5:0:0','5:0:0','5:0:0','5:0:0','4:0:0','4:0:0'))
-    tree.insert('', 'end', text="Config 1", values=dailyTimeConfig[dailyTimeConfigNum])
-
-def displayDay(tree):
-    week = list(('','','','','','',''))
-    week[weekday]='^'
-    week = tuple(week)
-    tree.config(height='2')
-    tree.insert('','end',text='Current Day',values=week)
-def createTree(tree):
-    global weekday
-    #tree view
-    s = ttk.Style()
-    s.configure('Treeview',rowheight=20)
-    s.configure('Treeview.Cell',foreground='blue')
-    # s.configure("mystyle.Treeview.column", highlightthickness=0, bd=0, font=('Calibri', 11)) # Modify the font of the body
-
-    tree['columns'] = ('mon','tue','wed','thu','fri','sat','sun')
-    tree.heading("#0", text='Daily Total Timers', anchor='w')
-    tree.column("#0", anchor="w")
-    tree.heading('mon', text='Monday')
-    tree.column('mon', anchor='center', width=80)
-    tree.heading('tue', text='Tuesday')
-    tree.column('tue', anchor='center', width=80)
-    tree.heading('wed', text='Wednesday')
-    tree.column('wed', anchor='center', width=80)
-    tree.heading('thu', text='Thursday')
-    tree.column('thu', anchor='center', width=80)
-    tree.heading('fri', text='Friday')
-    tree.column('fri', anchor='center', width=80)
-    tree.heading('sat', text='Saturday')
-    tree.column('sat', anchor='center', width=80)
-    tree.heading('sun', text='Sunday')
-    tree.column('sun', anchor='center', width=80)
-    
-    
-        
-
-
-    tree.grid()
-    populateTree(tree)
-    displayDay(tree)
-    
-    # tree.winfo_children()
-    
-    createDailyTimer(tree)
+def displayApps(leftFrame,displayAppsButton):
+    global hidden
+    hidden = tkinterApp.displayApps(hidden,leftFrame,displayAppsButton)
 
 def createDailyTimer(tree):
-    global weekday,dh,dm,ds
+    global weekday,dailyVars
     configNum = 0
     currConfig = tree.item(tree.get_children()[configNum])["values"]
     currDaily = currConfig[weekday]
-    print(currDaily)
-    # for child in tree.get_children():
-    #     print(tree.item(child)["values"])
-    # pass
-    
-    dh = int(currDaily.split(":")[0])
-    dm = int(currDaily.split(":")[1])
-    ds = int(currDaily.split(":")[2])
+    # print(currDaily)
+    for index in range(len(dailyVars)):
+        dailyVars[index] = int(currDaily.split(":")[index])
 
-    timerLabel = tk.Label(rightFrameDaily,text="Daily Timer: %s:%s:%s" % (dh, dm, ds), font=("Consolas", 20),bg='white')
+    timerLabel = tk.Label(rightFrameDaily,text="Daily Timer: %s:%s:%s" % (dailyVars[0],dailyVars[1],dailyVars[2]), font=("Consolas", 20),bg='white')
     timerLabel.pack(anchor='w')
 
 def setDaily(dailyTimerInput):
-    global dh, dm,ds, weekday, dailyTimeConfig,dailyTimeConfigNum,tree
+    global weekday, dailyTimeConfig,dailyTimeConfigNum,tree, dailyVars
     #print(dailyTimerInput)
-    tmpdh = int(dailyTimerInput.get().split(":")[0])
-    tmpdm = int(dailyTimerInput.get().split(":")[1])
-    tmpds = int(dailyTimerInput.get().split(":")[2])
-    if(tmpdh not in range(0,24)):
-        print("INVALID HOUR")
+    valid = tkinterValidTimer.validateDaily(dailyTimerInput)
+    if not valid:
         return
-    if(tmpdm not in range(0,59)):
-        print("INVALID MINS")
-        return 
-    if(tmpds not in range(0,59)):
-        print("INVALID SECS ")
-        return
-    dh = tmpdh
-    dm = tmpdm
-    ds = tmpds
+    for index in range(len(dailyVars)):
+        dailyVars[index] = int(dailyTimerInput.get().split(":")[index])
     # print(dailyTimeConfig)
     tmpConfig = dailyTimeConfig[dailyTimeConfigNum].split(' ')
     newConfig = ''
     count = 0
     for tmp in tmpConfig:
         if(count == weekday):
-            tmp = "%s:%s:%s" % (dh, dm, ds)
+            tmp = "%s:%s:%s" % (dailyVars[0],dailyVars[1],dailyVars[2])
         # print(tmp)
         newConfig += tmp+' '
         count += 1
-    print("weow")
+    print(newConfig.strip())
+
     print(newConfig.strip().split(' '))
     dailyTimeConfig[dailyTimeConfigNum] = newConfig.strip()
+    print(dailyTimeConfig)
     #edit tree values 
     print(tree.item(tree.get_children()[dailyTimeConfigNum])["values"])
     #tree.item(tree.get_children()[dailyTimeConfigNum])["values"]
-    # print("children")
-    # print(tree.get_children())
-    for child in tree.get_children():
-        tree.delete(child)
-    # tree.delete(tree.get_children()[dailyTimeConfigNum])
+    deleteTreeChildren(tree)
     tree.insert('','end',text="Updated Config", values=newConfig.strip().split(' '))
-    displayDay(tree)
+    tkinterTree.displayDay(tree,weekday)
     # print(newConfig.strip().split(' '))
     # print(tree.item(tree.get_children()[dailyTimeConfigNum])["values"])
     # print(tree.item(tree.get_children()[1])["values"])
-    for widget in rightFrameDaily.winfo_children():
-        widget.destroy()
-    timerLabel = tk.Label(rightFrameDaily,text="Daily Timer: %s:%s:%s" % (dh, dm, ds), font=("Consolas", 20),bg='white')
+    deleteFrameChildren(rightFrameDaily)
+
+    timerLabel = tk.Label(rightFrameDaily,text="Daily Timer: %s:%s:%s" % (dailyVars[0],dailyVars[1],dailyVars[2]), font=("Consolas", 20),bg='white')
     timerLabel.pack(anchor='w')
 
 def alarmSound():
@@ -190,25 +114,12 @@ def alarmSound():
         # winsound.Beep(freq, duration)
     currActive = False
 
-def displayApps():
-    global hidden
-    if (not hidden):
-        print("hiding")
-        leftFrame.grid_forget()
-        displayAppsButton.config(text='>')
-        hidden = True
-    else:
-        print("showing")
-        leftFrame.grid(row=0,sticky='nsew')
-        displayAppsButton.config(text='<')
-        hidden = False
-    pass
+
 
 
 def addApp():
     global apps,checked
     checked.clear()
-    count = 0
     
     filename= filedialog.askopenfilename(initialdir="/",title="Select File",
     filetypes=(("exectuables","*.exe"),("all files", "*.*")))
@@ -221,9 +132,8 @@ def addApp():
     #remove dupe
     apps = list(dict.fromkeys(apps))
     #remove everything in frame first
-    for widget in leftFrame1.winfo_children():
-        widget.destroy()
-        count = count + 1
+    deleteFrameChildren(leftFrame1)
+
     count = 0
     for app in apps:
         var = tk.BooleanVar()
@@ -250,19 +160,12 @@ def deleteApp():
         print('deleted ',apps[index])
         del checked[index]
         del apps[index]
-    # for item in checked:
-    #     print(item.get())
-        
-    # #remove everything in frame first
-    # for widget in leftFrame1.winfo_children():
-    #     widget.destroy()
-    #     count = count + 1
     
 
-def runApps():
-    for app in apps:
-        os.startfile(app)
 
+def changeWidgetColour(Frame,colour):
+    for widget in Frame.winfo_children():
+        widget.config(background=colour)
 def changeColours():
     global changed,defaultColour1,defaultColour2
     colour = defaultColour1
@@ -273,15 +176,12 @@ def changeColours():
         changed = False
     # print(colour,changed)
     canvas.config(background=colour)
+
     footerFrame.config(background=colour)
-    for widget in footerFrame.winfo_children():
-        widget.config(background=colour)
-    for widget in leftFrameButtons.winfo_children():
-        widget.config(background=colour)
-    for widget in rightFrameButtons.winfo_children():
-        widget.config(background=colour)
-    for widget in separator.winfo_children():
-        widget.config(background=colour)
+    changeWidgetColour(footerFrame,colour)
+    changeWidgetColour(leftFrameButtons,colour)
+    changeWidgetColour(rightFrameButtons,colour)
+    changeWidgetColour(separator,colour)
 
 def pauseTimer():
     global paused
@@ -300,6 +200,10 @@ def endTimer():
     ended = True
     paused = False
 
+
+
+
+
 def setActive():
     global currActive
     currActive = False
@@ -314,7 +218,7 @@ def runTimer(timerInput):
     if (currActive):
         #already running
         return
-    valid = timerApp.startTimer(timerInput)
+    valid = tkinterValidTimer.startTimer(timerInput)
     print(valid)
     if(valid):
         hours = 0
@@ -341,14 +245,13 @@ def runTimer(timerInput):
 
 
     else:
-        for widget in rightFrameTimer.winfo_children():
-            widget.destroy()
+        deleteFrameChildren(rightFrameTimer)
         #add new text
         timerLabel = tk.Label(rightFrameTimer,text="Timer: Invalid Format", font=("Consolas", 20),bg='white')
         timerLabel.pack(anchor='w')
 
 def displayTimer(timerInputList):
-    global run, s, m, h,textId,currActive,finished,dh,dm,ds,daily
+    global run, s, m, h,textId,currActive,finished,dailyVars,daily
     global paused,ended
     #check that new time isnt > time limit
     #stop early
@@ -368,29 +271,25 @@ def displayTimer(timerInputList):
             finished = False
             daily = False
         return 
-    
-    for widget in rightFrameTimer.winfo_children():
-        widget.destroy()
+    deleteFrameChildren(rightFrameTimer)
     #add new text
     timerLabel = tk.Label(rightFrameTimer,text="Timer: %s:%s:%s" % (h, m, s), font=("Consolas", 20),bg='white')
     timerLabel.pack(anchor='w')
     if (daily):
-        for widget in rightFrameDaily.winfo_children():
-            widget.destroy()
-        dailyLabel = tk.Label(rightFrameDaily,text="Daily Timer: %s:%s:%s" % (dh, dm, ds), font=("Consolas", 20),bg='white')
+        deleteFrameChildren(rightFrameDaily)
+        dailyLabel = tk.Label(rightFrameDaily,text="Daily Timer: %s:%s:%s" % (dailyVars[0],dailyVars[1],dailyVars[2]), font=("Consolas", 20),bg='white')
         dailyLabel.pack(anchor='w')
         
         
-        ds-=1
-        if(ds == -1):
-            dm-=1; ds = 59
-            if dm == -1:
-                dh-=1; dm = 59
-                if dh == -1:
+        dailyVars[2]-=1
+        if(dailyVars[2] == -1):
+            dailyVars[1]-=1; dailyVars[2] = 59
+            if dailyVars[1] == -1:
+                dailyVars[0]-=1; dailyVars[1] = 59
+                if dailyVars[0] == -1:
                     #finished
-                    dh = 0
-                    dm = 0
-                    ds = 0
+                    for index in range(len(dailyVars)):
+                        dailyVars[index] = 0
                     print("Daily Finished")
                     currActive = True
                     #play sound
@@ -522,8 +421,11 @@ rightFrameButtons.grid(row=6,columnspan=2,stick='w')
 
 
 
-tree = ttk.Treeview(rightFrameTree,style="Treeview",height='1')
-createTree(tree)
+tree = tkinterTree.initTree(rightFrameTree)
+tkinterTree.createTree(tree)
+tkinterTree.populateTree(tree,dailyTimeConfig,dailyTimeConfigNum)
+tkinterTree.displayDay(tree,weekday)
+createDailyTimer(tree)
 # self.grid_rowconfigure(0, weight = 1)
 # self.grid_columnconfigure(0, weight = 1)
 
@@ -613,17 +515,14 @@ deleteFile = tk.Button(leftFrameButtons, text="Delete App", padx=10,
                     pady=5,fg="white",bg=defaultColour1, command=deleteApp)
 deleteFile.pack(side='left',anchor='s')
 runApps = tk.Button(leftFrameButtons, text="Run Apps", padx=10,
-                    pady=5,fg="white",bg=defaultColour1, command=runApps)
+                    pady=5,fg="white",bg=defaultColour1, command=lambda: tkinterFile.runApps(apps))
 runApps.pack(side='left',anchor='s')
 
 
 #arrow button <> goes here probably in middle frame?
 displayAppsButton = tk.Button(separator, text="<", padx=10,
-                    pady=5,fg="white",bg=defaultColour1, command=displayApps)
+                    pady=5,fg="white",bg=defaultColour1, command=lambda: displayApps(leftFrame,displayAppsButton))
 displayAppsButton.pack(side='left',expand=True,fill='both', anchor='s')
-# hideAppsButton = tk.Button(separator, text="Hide Apps", padx=10,
-#                     pady=5,fg="white",bg=defaultColour1, command=hideApps)
-# hideAppsButton.pack(side='left',expand=True,fill='both',anchor='s')
 
 
 #when app starts up for first time
@@ -640,15 +539,5 @@ for app in apps:
 root.mainloop()
 currActive = False
 #save and write to txt file
-with open('save.txt','w') as f:
-    #remove dupes
-    apps = list(dict.fromkeys(apps))
-
-    #save our preferences comma separated
-    for app in apps:
-        f.write(app + ',')
-with open('dailyConfig.txt','w') as f:
-    #save our preferences comma separated
-    for dailyConfig in dailyTimeConfig:
-        print(dailyConfig)
-        f.write(str(dailyConfig) + '|')
+tkinterFile.saveApps(apps)
+tkinterFile.saveDaily(dailyTimeConfig)
